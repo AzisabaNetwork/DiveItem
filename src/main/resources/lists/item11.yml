@@ -1,0 +1,23 @@
+#type: Artifact Material Crafted Supply
+1:
+  display: "新規アイテム"
+  damage: 1
+  text:
+    - 新しい
+    - その先へ
+  area: layer1
+  type: Material
+  maxSize: 10
+  sell: 100
+  expPoint: 1
+  level: 1
+  food: 1
+  rarity: Normal
+  gather:
+    type: Mining
+    material:
+      - STONE
+      - COBBLESTONE
+    dropRate: 1.0
+    gatherSpeed: 1.0
+    maxDepth: 100

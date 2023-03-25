@@ -1,0 +1,24 @@
+mechanicTick: 6
+levelTick: 2
+displayShowTick: 3
+displayScoreTick: 10
+itemLimitTick: 5
+npcParticleTick: 7
+lootSendTick: 10
+baseGuardTick: 10
+baseUpdateTick: 5
+
+moveTick: 4
+
+helpId: 0
+ropeId: 0
+pointTradeId: 0
+pointLookId: 0
+baseId: 0
+craftId: 0
+
+releaseTick: 200
+
+
+admin:
+  - 380b

@@ -1,0 +1,13 @@
+#amountMap(layerID,チェストの配置数)
+#lootMap(layerID,loot)
+#loot構成：候補座標リスト・各レベルの報酬リスト
+#報酬構成：ItemID・数・確率
+layer1:
+  amount: 10
+  loot:
+    Lv1:
+      - 100,1,0.2
+      - 101,2,0.05
+  locationList:
+    1:
+    2:

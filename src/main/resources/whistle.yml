@@ -1,0 +1,33 @@
+Whsitle:
+  FirstExp: 50.0
+  IncreaseRate: 1.07
+  IncreasePlus: 20
+  Limit: 50
+Level:
+  1:
+    Type: Red
+    ReturnDepth: 100
+    EnderCapacity: 1
+  2:
+    ReturnDepth: 50
+  3:
+    ReturnDepth: 50
+  4:
+    ReturnDepth: 50
+  5:
+    ReturnDepth: 50
+  6:
+    ReturnDepth: 50
+  7:
+    ReturnDepth: 50
+  8:
+    ReturnDepth: 50
+  9:
+    ReturnDepth: 50
+  10:
+    ReturnDepth: 50
+    EnderCapacity: 1
+  11:
+    ReturnDepth: 50
+  12:
+    ReturnDepth: 50

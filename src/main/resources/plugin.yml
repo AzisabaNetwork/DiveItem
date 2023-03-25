@@ -1,0 +1,18 @@
+name: DiveItem
+version: ${project.version}
+main: com.flora30.diveitem.DiveItem
+api-version: 1.17
+depend: [ DiveAPI,MythicMobs,ModelEngine,ProtocolLib,Citizens ]
+softdepend: [ DiveRegion ]
+authors: [ Flora30 ]
+description: アイテム関連
+commands:
+  item:
+    permission-message: Unknown command. Type "/help" for help.
+    permission: diveitem.*
+  loot:
+    permission-message: Unknown command. Type "/help" for help.
+    permission: diveitem.*
+permissions:
+  diveitem.*:
+    default: op

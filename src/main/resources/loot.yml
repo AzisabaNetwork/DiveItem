@@ -1,0 +1,24 @@
+particleDistance: 20
+particleCount: 10
+particleRange: 1.0
+particleType: end_rod
+failed:
+  itemID: 1
+  amount: 1
+
+rarity:
+  normal: 1
+  unusual: 0.8
+  rare: 0.5
+  epic: 0.2
+  legendary: 0.02
+  ultra: 0.001
+
+#lootLevelList(報酬レベル,各レベルごとの要素)
+#各レベルごとの要素構成：パーティクルの数・範囲・種類、チェストタイトルの追加String、チェストのスロット数
+lootlevel:
+  1:
+    titlePlus: Lv.1
+    chestSlot: 9
+    percent: 0.8
+

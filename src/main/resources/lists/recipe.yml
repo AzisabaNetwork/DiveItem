@@ -1,0 +1,12 @@
+#完成品のID
+102:
+  #素材アイテム
+  m1: o,101,o
+  m2: 101,o,101
+  m3: 101,o,101
+  m4: o,101,o
+  #ぼやけた地点（White,Gray,Black）
+  hide1: o,o,o
+  hide2: o,o,o
+  hide3: White,White,White
+  hide4: White,White,WHite
