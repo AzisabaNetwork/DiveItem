@@ -7,27 +7,25 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.flora30.diveapi.DiveAPI;
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveitem.loot.Loot;
+import com.flora30.diveapin.DiveAPIN;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import com.flora30.diveitem.loot.LootMain;
-import com.flora30.diveitem.rope.Rope;
 import com.flora30.diveitem.rope.RopeMain;
 import com.flora30.diveitem.util.BlockUtil;
-import org.bukkit.Bukkit;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.loot.Loot;
+import com.flora30.divenew.data.loot.LootObject;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.Event;
 
 import java.util.ConcurrentModificationException;
 
 public class BlockChangeListener extends PacketAdapter {
 
     public BlockChangeListener() {
-        super(DiveAPI.plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.BLOCK_CHANGE);
+        super(DiveAPIN.plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.BLOCK_CHANGE);
     }
 
     @Override
@@ -40,31 +38,33 @@ public class BlockChangeListener extends PacketAdapter {
             BlockPosition position = packet.getBlockPositionModifier().read(0);
             WrappedBlockData data = packet.getBlockData().read(0);
 
+            /*
             if (CoreAPI.isLogMode()) {
                 //Bukkit.getLogger().info("position = "+position.getX()+","+position.getY()+","+position.getZ());
                 //Bukkit.getLogger().info("material = "+data.getType());
             }
+             */
 
 
             // Loot用
             // 光ブロック → air の時も取得するけど無視で
             if (data.getType() == Material.AIR || data.getType() == Material.WATER) {
                 Location location = position.toLocation(event.getPlayer().getWorld());
-                PlayerData pData = CoreAPI.getPlayerData(event.getPlayer().getUniqueId());
+                PlayerData pData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getPlayer().getUniqueId());
                 if (pData == null) return;
 
-                String lootLayer = RegionAPI.getLayerName(event.getPlayer().getLocation());
-                if (!pData.layerData.lootLayer.equals(lootLayer)) return;
+                String lootLayer = LayerObject.INSTANCE.getLayerName(event.getPlayer().getLocation());
+                if (!pData.getLayerData().getLootLayer().equals(lootLayer)) return;
 
-                Loot loot = LootMain.getLoot(lootLayer);
+                Loot loot = LootObject.INSTANCE.getLootMap().get(lootLayer);
 
                 // 例外が出たら（途中で変更があった）やり直し
                 while(true) {
                     try {
                         // 現在のエリアにあるlootの最大より多いID（その場合LootLocが取れない）があれば消す
-                        pData.layerData.lootMap.entrySet().removeIf(i -> loot.getLootLoc(i.getKey()) == null);
+                        pData.getLayerData().getLootMap().entrySet().removeIf(i -> loot.getLootLoc(i.getKey()) == null);
 
-                        for (int lootId : pData.layerData.lootMap.keySet()) {
+                        for (int lootId : pData.getLayerData().getLootMap().keySet()) {
                             // 右クリックじゃないタイミング（テレポート直後）で送られたときは？ -> 距離判定を入れてごまかす
                             if (event.getPlayer().getLocation().distance(location) > 5) {
                                 continue;
