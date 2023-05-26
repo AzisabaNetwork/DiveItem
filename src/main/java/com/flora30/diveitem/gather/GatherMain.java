@@ -1,16 +1,17 @@
 package com.flora30.diveitem.gather;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveapi.tools.PacketUtil;
-import com.flora30.diveapi.tools.ToolType;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.util.PacketUtil;
 import com.flora30.diveitem.Listeners;
-import com.flora30.diveitem.item.data.ItemDataMain;
 import com.flora30.diveitem.gather.type.Fishing;
 import com.flora30.diveitem.gather.type.Logging;
 import com.flora30.diveitem.gather.type.Mining;
+import com.flora30.divenew.data.GatherData;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.item.ToolType;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -18,8 +19,6 @@ import org.bukkit.event.player.PlayerFishEvent;
 import java.util.*;
 
 public class GatherMain {
-    // 階層ごとの採集の情報
-    public static final Map<String, GatherLayerData> gatherLayerMap = new HashMap<>();
 
     // 岩盤packetを送るtick数
     public static int bedrockTick = 200;
@@ -27,19 +26,19 @@ public class GatherMain {
 
     public static void gather(Player player, Location location, int toolId){
 
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
         if(data == null) return;
 
+        // ToolDataを取得
+        ItemData itemData = ItemDataObject.INSTANCE.getItemDataMap().get(toolId);
+        if(itemData == null || itemData.getToolData() == null) return;
+        ToolType type = itemData.getToolData().getToolType();
+
+
         // GatherDataを取得
-        ItemData itemData = ItemDataMain.getItemData(toolId);
-        if(itemData == null) return;
-        ToolType type = itemData.gatherData.toolType;
-
-
-        // GatherLayerを取得
-        String layerName = RegionAPI.getLayerName(location);
-        GatherLayerData gatherLayerData = gatherLayerMap.get(layerName);
-        if(gatherLayerData == null){
+        String layerName = LayerObject.INSTANCE.getLayerName(location);
+        GatherData gatherData = LayerObject.INSTANCE.getGatherMap().get(layerName);
+        if(gatherData == null){
             return;
         }
 
@@ -62,22 +61,22 @@ public class GatherMain {
     // 釣り用
     public static void gather(Player player, PlayerFishEvent event, int toolId){
 
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
         if(data == null) return;
 
-        // GatherDataを取得
-        ItemData itemData = ItemDataMain.getItemData(toolId);
-        if(itemData == null) return;
-        ToolType type = itemData.gatherData.toolType;
+        // ToolDataを取得
+        ItemData itemData = ItemDataObject.INSTANCE.getItemDataMap().get(toolId);
+        if(itemData == null || itemData.getToolData() == null) return;
+        ToolType type = itemData.getToolData().getToolType();
         if(type != ToolType.Fishing) return;
 
 
         //Bukkit.getLogger().info("Gather item data passed");
 
-        // GatherLayerを取得
-        String layerName = RegionAPI.getLayerName(player.getLocation());
-        GatherLayerData gatherLayerData = gatherLayerMap.get(layerName);
-        if(gatherLayerData == null){
+        // GatherDataを取得
+        String layerName = LayerObject.INSTANCE.getLayerName(player.getLocation());
+        GatherData gatherData = LayerObject.INSTANCE.getGatherMap().get(layerName);
+        if(gatherData == null){
             return;
         }
 
@@ -99,29 +98,29 @@ public class GatherMain {
      * 万が一重かったらExceptionをIgnoreする（今までの処理終わってる時のエラーなので、そのまま閉じていい）
      */
     public static void checkBedrock(Player player){
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
         if(data == null) return;
 
         Set<Location> removeSet = new HashSet<>();
-        for(Location loc : data.gatherBedrockMap.keySet()){
+        for(Location loc : data.getGatherBedrockMap().keySet()){
             // カウントを進める
-            int remain = data.gatherBedrockMap.get(loc);
+            int remain = data.getGatherBedrockMap().get(loc);
             remain -= Math.min(remain - Listeners.gatherSendTick, 0);
-            data.gatherBedrockMap.put(loc, remain);
+            data.getGatherBedrockMap().put(loc, remain);
 
             // カウントによって分岐
             // カウントが 0 の場合 = Mapから消す（「終了した」packetを送る）
             if(remain == 0){
                 removeSet.add(loc);
-                PacketUtil.sendBlockChangePacket(player, loc.getBlock().getBlockData().getMaterial(), loc);
+                PacketUtil.INSTANCE.sendBlockChangePacket(player, loc.getBlock().getBlockData().getMaterial(), loc);
             }
             else{
                 // カウントがある場合 = packetを送る
-                PacketUtil.sendBlockChangePacket(player, Material.BEDROCK, loc);
+                PacketUtil.INSTANCE.sendBlockChangePacket(player, Material.BEDROCK, loc);
             }
         }
 
         // カウントが 0 のデータを消す
-        data.gatherBedrockMap.keySet().removeAll(removeSet);
+        data.getGatherBedrockMap().keySet().removeAll(removeSet);
     }
 }

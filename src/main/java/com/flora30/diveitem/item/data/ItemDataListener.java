@@ -1,14 +1,14 @@
 package com.flora30.diveitem.item.data;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.Story;
-import com.flora30.diveapi.data.item.Rarity;
-import com.flora30.diveapi.event.GetItemEvent;
-import com.flora30.diveapi.event.SaveItemEvent;
-import com.flora30.diveapi.plugins.QuestAPI;
-import com.flora30.diveapi.tools.ItemType;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.Rarity;
+import com.flora30.diveapin.event.GetItemEvent;
+import com.flora30.diveapin.event.SaveItemEvent;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.util.PlayerItem;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.item.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,17 +26,17 @@ public class ItemDataListener {
 
     // 固有の値を保存する
     public static void onSaveItem(SaveItemEvent e) {
-        ItemData data = ItemDataMain.getItemData(ItemStackMain.getItemID(e.item));
+        ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(e.getItem()));
         // 遺物価値
-        if (data != null && data.artifactData != null) {
-            e.additionalValue = String.valueOf(PlayerItem.getInt(e.item,artifactValueKey));
+        if (data != null && data.getArtifactData() != null) {
+            e.setAdditionalValue(String.valueOf(PlayerItem.getInt(e.getItem(),artifactValueKey)));
         }
     }
 
     // 固有の値がある場合は、e.additionalValueにある
     public static void onGetItem(GetItemEvent e){
         int id = e.getId();
-        ItemData itemData = ItemDataMain.getItemData(id);
+        ItemData itemData = ItemDataObject.INSTANCE.getItemDataMap().get(id);
         if (itemData == null){
             Bukkit.getLogger().info("itemDataがありません - "+e.getId());
             return;
@@ -45,37 +45,37 @@ public class ItemDataListener {
         //データ紐づけ
         e.setString("id",id);
         // 遺物価値
-        if (itemData.artifactData != null) {
+        if (itemData.getArtifactData() != null) {
             // 値がない場合は自動生成：80 ％ ～ 120 ％
-            if (e.additionalValue == null) {
-                int value = (int) (((double)itemData.artifactData.value) * (0.8 + Math.random() * 0.4));
-                e.additionalValue = String.valueOf(value);
+            if (e.getAdditionalValue() == null) {
+                int value = (int) (((double)itemData.getArtifactData().getValue()) * (0.8 + Math.random() * 0.4));
+                e.setAdditionalValue(String.valueOf(value));
             }
 
             try{
-                e.setString(artifactValueKey, Integer.parseInt(e.additionalValue));
+                e.setString(artifactValueKey, Integer.parseInt(e.getAdditionalValue()));
             } catch (NumberFormatException error) {
-                Bukkit.getLogger().info("遺物"+e.getItemMeta().getDisplayName()+"の価値「"+e.additionalValue+"」は不正です");
+                Bukkit.getLogger().info("遺物"+e.getItem().getItemMeta().getDisplayName()+"の価値「"+e.getAdditionalValue()+"」は不正です");
                 e.setCancelled(true);
                 return;
             }
         }
         // 耐久値
-        else if(itemData.type == ItemType.Armor || itemData.gatherData != null) {
-            Damageable damageable = (Damageable) e.getItemMeta();
+        else if(itemData.getType() == ItemType.Armor || itemData.getToolData() != null) {
+            Damageable damageable = (Damageable) e.getItem().getItemMeta();
             try{
-                damageable.setDamage(Integer.parseInt(e.additionalValue));
-                e.setItemMeta(damageable);
+                damageable.setDamage(Integer.parseInt(e.getAdditionalValue()));
+                e.getItem().setItemMeta(damageable);
             } catch (NumberFormatException error) {
                 //Bukkit.getLogger().info(e.getItemMeta().getDisplayName()+"に耐久値がありません：変更なし");
             }
         }
 
         // lore作成
-        ItemMeta meta = e.getItemMeta();
-        meta.setLore(createLore(itemData, e.additionalValue));
+        ItemMeta meta = e.getItem().getItemMeta();
+        meta.setLore(createLore(itemData, e.getAdditionalValue()));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        e.setItemMeta(meta);
+        e.getItem().setItemMeta(meta);
     }
 
     /**
@@ -88,77 +88,72 @@ public class ItemDataListener {
         }
 
         //種類
-        if (convertDisplayType(data.type) != null){
+        if (convertDisplayType(data.getType()) != null){
             lore.add("");
-            lore.add(ChatColor.GOLD +"種類 ‣ " + ChatColor.WHITE + convertDisplayType(data.type));
+            lore.add(ChatColor.GOLD +"種類 ‣ " + ChatColor.WHITE + convertDisplayType(data.getType()));
         }
 
         // 遺物価値
-        if (data.artifactData != null) {
+        if (data.getArtifactData() != null) {
             lore.add("");
             lore.add(ChatColor.GOLD + "遺物価値 ‣ " + ChatColor.WHITE + value1);
         }
 
         //攻撃力
-        if (data.damage > 0) {
+        if (data.getDamage() > 0) {
             lore.add("");
-            lore.add(ChatColor.GOLD+"攻撃力 ‣ "+ChatColor.WHITE + data.damage);
+            lore.add(ChatColor.GOLD+"攻撃力 ‣ "+ChatColor.WHITE + data.getDamage());
         }
 
         //レベル
-        if (data.level > 1) {
+        if (data.getLevel() > 1) {
             lore.add("");
-            lore.add(ChatColor.GOLD+"必要レベル ‣ "+ChatColor.WHITE + data.level);
+            lore.add(ChatColor.GOLD+"必要レベル ‣ "+ChatColor.WHITE + data.getLevel());
         }
 
         //売却値
-        if (data.money > 0) {
+        if (data.getMoney() > 0) {
             lore.add("");
-            lore.add(ChatColor.GOLD +"売却値 ‣ " + ChatColor.WHITE+String.format("%5.1f",data.money));
+            lore.add(ChatColor.GOLD +"売却値 ‣ " + ChatColor.WHITE+String.format("%5.1f",data.getMoney()));
         }
 
         ///////////////////
         lore.add("");
         ///////////////////
-        //所持数制限
-        if (data.maxStack < 64){
-            lore.add(ChatColor.GOLD +"最大スタック ‣ " + ChatColor.WHITE + data.maxStack);
-        }
         //エリア名
-        if (data.area != null){
-            Story story = QuestAPI.getStory(data.area);
-            if (story != null && story.displayName != null){
-                lore.add( ChatColor.GOLD +"入手階層 ‣ " + ChatColor.WHITE + QuestAPI.getStory(data.area).displayName);
-            }
+        Story story = QuestAPI.getStory(data.getArea());
+        if (story != null && story.displayName != null) {
+            lore.add(ChatColor.GOLD + "入手階層 ‣ " + ChatColor.WHITE + QuestAPI.getStory(data.getArea()).displayName);
         }
+
         //食事
-        checkAdd(lore, ChatColor.GOLD +"満腹度 ‣ " + ChatColor.WHITE + data.food, data.food);
+        checkAdd(lore, ChatColor.GOLD +"満腹度 ‣ " + ChatColor.WHITE + data.getFood(), data.getFood());
 
         // 採集
-        switch (data.gatherData.toolType) {
-            case Mining,Logging, Fishing -> {
-                lore.add("");
-                lore.add(ChatColor.GOLD + "採集可能な深度 ‣ " + ChatColor.WHITE + data.gatherData.maxDepth);
-                lore.add("");
-                //checkAdd(lore, ChatColor.GOLD + "破壊可能ブロック ‣ " + ChatColor.WHITE + convertMaterialsToString(data.gatherData.breakAbleMaterialSet), convertMaterialsToString(data.gatherData.breakAbleMaterialSet));
-                lore.add(ChatColor.GOLD + "アイテム入手確率 ‣ " + ChatColor.WHITE + (int) data.gatherData.dropRate * 100 + "％");
+        if (data.getToolData() != null) {
+            switch (data.getToolData().getToolType()) {
+                case Mining,Logging, Fishing -> {
+                    lore.add("");
+                    lore.add(ChatColor.GOLD + "採集可能な深度 ‣ " + ChatColor.WHITE + data.getToolData().getMaxDepth());
+                    lore.add("");
+                    //checkAdd(lore, ChatColor.GOLD + "破壊可能ブロック ‣ " + ChatColor.WHITE + convertMaterialsToString(data.gatherData.breakAbleMaterialSet), convertMaterialsToString(data.gatherData.breakAbleMaterialSet));
+                    lore.add(ChatColor.GOLD + "アイテム入手確率 ‣ " + ChatColor.WHITE + (int) data.getToolData().getDropRate() * 100 + "％");
+                }
             }
         }
 
         // ロープ
-        if (data.ropeData != null) {
-            lore.add(ChatColor.GOLD + "距離 ‣ " + ChatColor.WHITE + data.ropeData.length);
+        if (data.getRopeData() != null) {
+            lore.add(ChatColor.GOLD + "距離 ‣ " + ChatColor.WHITE + data.getRopeData().getLength());
         }
 
         ///////////////////
         lore.add("");
         ///////////////////
-        List<String> text = data.text;
-        if (text != null){
-            lore.addAll(text);
-        }
+        List<String> text = data.getText();
+        lore.addAll(text);
 
-        checkAdd(lore,getRarityString(data.rarity),getRarityString(data.rarity));
+        checkAdd(lore,getRarityString(data.getRarity()),getRarityString(data.getRarity()));
 
         return lore;
     }

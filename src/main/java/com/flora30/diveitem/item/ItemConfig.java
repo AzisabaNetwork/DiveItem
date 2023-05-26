@@ -1,6 +1,7 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapi.tools.Config;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.io.MythicConfig;
@@ -36,7 +37,8 @@ public class ItemConfig extends Config {
             //読み込み
             int id = conf.getInteger("Id");
             String name = item.getInternalName();
-            ItemStackMain.putMythicItem(id, name);
+            ItemMain.INSTANCE.getMythicItemMap().put(id, name);
+            Bukkit.getLogger().info(id + " : " + name);
             loadLore(id);
 
             count++;
@@ -86,7 +88,7 @@ public class ItemConfig extends Config {
         ConfigurationSection section = config.getConfigurationSection(strId);
         assert section != null;
 
-        String mythicName = ItemStackMain.getMythicName(id);
+        String mythicName = ItemMain.INSTANCE.getMythicItemMap().get(id);
         if(mythicName != null){
             //既存のitemがあれば削除
             if(config.isConfigurationSection(id+".item")){
@@ -95,7 +97,7 @@ public class ItemConfig extends Config {
             checkAndWrite(section,"mythicName",mythicName);
         }
         else{
-            ItemStack item = ItemStackMain.getNeutralItem(id);
+            ItemStack item = ItemMain.INSTANCE.getNeutralItem(id);
             if(item != null){
                 //既存のmythicNameがあれば削除
                 if(config.isConfigurationSection(id+".mythicName")){

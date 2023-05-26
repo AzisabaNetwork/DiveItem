@@ -1,17 +1,14 @@
 package com.flora30.diveitem.gather.type;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.data.Point;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveitem.gather.GatherLayerData;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import com.flora30.diveitem.gather.GatherMain;
-import com.flora30.diveitem.item.ItemEntityMain;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.mythic.DMythicUtil;
-import io.lumine.xikage.mythicmobs.MythicMobs;
-import net.minecraft.world.entity.projectile.FishingHook;
-import org.bukkit.Bukkit;
+import com.flora30.divenew.data.GatherData;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.PointObject;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -47,11 +44,11 @@ public class Fishing extends Gather{
      */
     @Override
     protected boolean checkStamina(){
-        if(playerData.currentST < staminaCost) {
+        if(playerData.getCurrentST() < staminaCost) {
             fishEvent.setCancelled(true);
             return false;
         }
-        playerData.currentST -= staminaCost;
+        playerData.setCurrentST(playerData.getCurrentST() - staminaCost);
         return true;
     }
 
@@ -59,19 +56,19 @@ public class Fishing extends Gather{
     protected boolean checkMonster() {
         assert location.getWorld() != null;
 
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        GatherLayerData gatherLayerData = GatherMain.gatherLayerMap.get(RegionAPI.getLayerName(location));
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        GatherData gatherData = LayerObject.INSTANCE.getGatherMap().get(LayerObject.INSTANCE.getLayerName(location));
 
         // 原生生物判定 : 初期 firstMonsterRate %
         // 良いイベント：ステータスはプラス値として反映
-        double rate = (firstMonsterRate + fishPlusRate) * (2.0 - Point.convertGatherMonsterRate(data.levelData.pointInt));
+        double rate = (firstMonsterRate + fishPlusRate) * (2.0 - PointObject.INSTANCE.getGatherMonsterRate(data.getLevelData().getPointInt()));
 
         // 判定成功：Mobを沸かせる＋演出
         if(Math.random() < rate){
             //Bukkit.getLogger().info("GatherExecute: 原生生物判定");
 
             // 原生生物Mobを召喚する
-            Entity mob = DMythicUtil.spawnMob(gatherLayerData.getRandomFishMob(), location);
+            Entity mob = DMythicUtil.spawnMob(gatherData.getRandomFishMob(), location);
             mob.setVelocity(new Vector(0,1,0));
 
             // バニラの釣りEntityを消す
@@ -108,7 +105,7 @@ public class Fishing extends Gather{
         }
 
         // 釣りItemを入れ替える
-        ItemStack item = ItemStackMain.getItem(dropId);
+        ItemStack item = ItemMain.INSTANCE.getItem(dropId);
 
 
         assert fishEvent.getCaught() != null;

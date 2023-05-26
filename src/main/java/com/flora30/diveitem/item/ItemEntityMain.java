@@ -1,20 +1,16 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.item.Rarity;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.ItemEntityData;
+import com.flora30.diveapin.ItemEntityObject;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.MobEntityData;
+import com.flora30.diveapin.data.Rarity;
+import com.flora30.diveapin.event.PutItemEntityEvent;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.data.ItemDataMain;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.phys.Vec3;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
+import net.minecraft.server.level.WorldServer;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -28,29 +24,17 @@ import org.bukkit.scoreboard.Team;
 import java.util.*;
 
 public class ItemEntityMain {
-    //一時保存（アイテムエンティティ | プレイヤーUUID）
-    public static final Map<Item, ItemEntityData> itemEntityMap = new HashMap<>();
-    //一時保存（エンティティ | 攻撃したプレイヤーリスト）
-    public static final Map<UUID, MobEntityData> mobMap = new HashMap<>();
-    // 色の演出用
-    public static final Set<Item> freeItems = new HashSet<>();
 
-    //レア度 | 発光用のTeam
-    public static final Map<Rarity, Team> colorTeamMap = new HashMap<>();
+    // DiveAPINのクラスを引用
+    private static final Map<Item,ItemEntityData> itemEntityMap = ItemEntityObject.INSTANCE.getItemEntityMap();
+    private static final Map<UUID,MobEntityData> mobMap = ItemEntityObject.INSTANCE.getMobMap();
+    private static final Set<Item> freeItems = ItemEntityObject.INSTANCE.getFreeItemSet();
+    private static final Map<Rarity,Team> colorTeamMap = ItemEntityObject.INSTANCE.getColorTeamMap();
 
-
-    public static int releaseTick = 200;
 
     ///////////////////////////
     ///////////////////////////
     ///////////////////////////
-
-    public static Entity SpawnItem(ItemStack item, Location location, Player player){
-        if(location.getWorld() == null) return null;
-        Item itemEntity = location.getWorld().dropItem(location, item);
-        putItem(itemEntity, player);
-        return itemEntity;
-    }
 
     public static void onDrop(PlayerDropItemEvent event){
         if (event.isCancelled()){
@@ -60,7 +44,7 @@ public class ItemEntityMain {
         if(event.getItemDrop().getItemStack().getType().equals(Material.COMPASS)) {
             return;
         }
-        putItem(event.getItemDrop(),event.getPlayer());
+        ItemEntityObject.INSTANCE.putItem(event.getItemDrop(),event.getPlayer());
     }
 
     public static void onPickupItem(EntityPickupItemEvent event){
@@ -82,8 +66,8 @@ public class ItemEntityMain {
             }
             // 攻撃力の無いアイテムは停止（遺物は？）
             ItemStack item = player.getInventory().getItemInMainHand();
-            ItemData data = ItemDataMain.getItemData(ItemStackMain.getItemID(item));
-            if (data == null || data.damage <= 0) {
+            ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(item));
+            if (data == null || data.getDamage() <= 0) {
                 event.setCancelled(true);
                 return;
             }
@@ -93,37 +77,38 @@ public class ItemEntityMain {
     }
 
     public static void onMerge(ItemMergeEvent e) {
+        Map<Item, ItemEntityData> map = ItemEntityObject.INSTANCE.getItemEntityMap();
 
         // 演出・判定を消去
-        if (itemEntityMap.containsKey(e.getEntity())) {
-            ItemEntityData data = itemEntityMap.get(e.getEntity());
+        if (ItemEntityObject.INSTANCE.getItemEntityMap().containsKey(e.getEntity())) {
+            ItemEntityData data = map.get(e.getEntity());
 
             // 合流元・先のIDが違ったら回避
-            ItemEntityData targetData = itemEntityMap.get(e.getTarget());
+            ItemEntityData targetData = map.get(e.getTarget());
             if (targetData != null && targetData.getId() != data.getId()) {
                 e.setCancelled(true);
                 return;
             }
 
-            Entity as = Bukkit.getEntity(data.armorStandId);
+            Entity as = Bukkit.getEntity(data.getArmorStandID());
             if (as != null) {
                 as.remove();
             }
-            itemEntityMap.remove(e.getEntity());
+            map.remove(e.getEntity());
         }
 
-        freeItems.remove(e.getEntity());
+        ItemEntityObject.INSTANCE.getFreeItemSet().remove(e.getEntity());
     }
 
     public static void onDespawn(ItemDespawnEvent e) {
         // 演出・判定を消去
 
-        if (itemEntityMap.containsKey(e.getEntity())) {
+        if (ItemEntityObject.INSTANCE.getItemEntityMap().containsKey(e.getEntity())) {
             e.setCancelled(true);
             return;
         }
 
-        freeItems.remove(e.getEntity());
+        ItemEntityObject.INSTANCE.getFreeItemSet().remove(e.getEntity());
     }
 
     ///////////////////////////
@@ -131,19 +116,19 @@ public class ItemEntityMain {
     ///////////////////////////
 
     public static boolean canPickupItem(Item item, Player player){
-        if (freeItems.contains(item)) {
-            freeItems.remove(item);
+        if (ItemEntityObject.INSTANCE.getFreeItemSet().contains(item)) {
+            ItemEntityObject.INSTANCE.getFreeItemSet().remove(item);
             return true;
         }
 
-        ItemEntityData data = itemEntityMap.get(item);
+        ItemEntityData data = ItemEntityObject.INSTANCE.getItemEntityMap().get(item);
         if (data == null){
             return true;
         }
 
         if (data.getId().equals(player.getUniqueId())){
-            Objects.requireNonNull(Bukkit.getEntity(data.armorStandId)).remove();
-            itemEntityMap.remove(item);
+            Objects.requireNonNull(Bukkit.getEntity(data.getArmorStandID())).remove();
+            ItemEntityObject.INSTANCE.getItemEntityMap().remove(item);
             return true;
         }
         else{
@@ -152,43 +137,32 @@ public class ItemEntityMain {
     }
 
     public static void putMob(UUID uuid, Player player){
+        Map<UUID,MobEntityData> mobMap = ItemEntityObject.INSTANCE.getMobMap();
+
         if (mobMap.containsKey(uuid)){
             if (player.getUniqueId().equals(uuid)){
-                mobMap.get(uuid).remain = releaseTick;
+                mobMap.get(uuid).setRemain(ItemEntityObject.INSTANCE.getReleaseTick());
             }
         }
         else{
-            MobEntityData data = new MobEntityData();
-            data.remain = releaseTick;
-            data.playerIdSet.add(player.getUniqueId());
+            MobEntityData data = new MobEntityData(ItemEntityObject.INSTANCE.getReleaseTick());
+            data.getPlayerIdSet().add(player.getUniqueId());
             mobMap.put(uuid,data);
         }
     }
 
-    public static void putItem(Item item, Player player){
-        int itemId = ItemStackMain.getItemID(item.getItemStack());
-        ItemData itemData = ItemDataMain.getItemData(itemId);
+    /**
+     * アイテムに発光色を追加
+     */
+    public static void onPutItem(PutItemEntityEvent event) {
+        int itemId = ItemMain.INSTANCE.getItemId(event.getItem().getItemStack());
+        ItemData itemData = ItemDataObject.INSTANCE.getItemDataMap().get(itemId);
         if (itemData == null) return;
 
-        ItemEntityData data = new ItemEntityData();
-        data.setRemain(releaseTick);
-        data.setId(player.getUniqueId());
-
-        // 名前表示用のアーマースタンド
-        ArmorStand armorStand = (ArmorStand) item.getWorld().spawnEntity(item.getLocation().add(0,-1.5,0),EntityType.ARMOR_STAND);
-        armorStand.setInvisible(true);
-        armorStand.setCustomNameVisible(true);
-        armorStand.setCustomName(player.getDisplayName());
-        armorStand.setGravity(false);
-        armorStand.setInvulnerable(true);
-        data.armorStandId = armorStand.getUniqueId();
-
         // 発光色を追加
-        Rarity rarity = itemData.rarity;
-        colorTeamMap.get(rarity).addEntry(item.getUniqueId().toString());
-        item.setGlowing(true);
-
-        itemEntityMap.put(item,data);
+        Rarity rarity = itemData.getRarity();
+        ItemDataObject.INSTANCE.getColorTeamMap().get(rarity).addEntry(event.getItem().getUniqueId().toString());
+        event.getItem().setGlowing(true);
     }
 
     public static void onTick(){
@@ -198,23 +172,23 @@ public class ItemEntityMain {
             data.setRemain(data.getRemain() - 1);
         }
         for (MobEntityData data : mobMap.values()) {
-            data.remain--;
+            data.setRemain(data.getRemain()-1);
         }
 
 
         // 演出（アーマースタンドの削除もここ）
         for (Item item : itemEntityMap.keySet()) {
             ItemEntityData data = itemEntityMap.get(item);
-            Entity as = Bukkit.getEntity(data.armorStandId);
+            Entity as = Bukkit.getEntity(data.getArmorStandID());
             if (as == null) {
                 freeItems.add(item);
                 break;
             }
 
             // 演出
-            ItemData itemData = ItemDataMain.getItemData(ItemStackMain.getItemID(item.getItemStack()));
+            ItemData itemData = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(item.getItemStack()));
             if (itemData != null) {
-                item.getWorld().spawnParticle(Particle.REDSTONE, item.getLocation().add(0, 0.3, 0), 2, 0.2, 0.2, 0.2, 0, new Particle.DustOptions(getColor(itemData.rarity), (float) Math.random() * 0.6F + 0.4F));
+                item.getWorld().spawnParticle(Particle.REDSTONE, item.getLocation().add(0, 0.3, 0), 2, 0.2, 0.2, 0.2, 0, new Particle.DustOptions(getColor(itemData.getRarity()), (float) Math.random() * 0.6F + 0.4F));
             }
 
             // アイテムのプレイヤー帰属残り時間がある（通常時）
@@ -230,20 +204,20 @@ public class ItemEntityMain {
         }
 
         // 何かの原因でアマスタが無くなっているものを所有物から外す
-        itemEntityMap.entrySet().removeIf(i -> Bukkit.getEntity(i.getValue().armorStandId) == null);
+        itemEntityMap.entrySet().removeIf(i -> Bukkit.getEntity(i.getValue().getArmorStandID()) == null);
 
         for (Item item : freeItems) {
             // 演出
-            ItemData data = ItemDataMain.getItemData(ItemStackMain.getItemID(item.getItemStack()));
+            ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(item.getItemStack()));
             if (data != null) {
-                item.getWorld().spawnParticle(Particle.REDSTONE,item.getLocation().add(0,0.3,0),2,0.2,0.2,0.2,0,new Particle.DustOptions(getColor(data.rarity),(float) Math.random()*0.6F+0.4F));
+                item.getWorld().spawnParticle(Particle.REDSTONE,item.getLocation().add(0,0.3,0),2,0.2,0.2,0.2,0,new Particle.DustOptions(getColor(data.getRarity()),(float) Math.random()*0.6F+0.4F));
             }
         }
 
         // remain <= 0になったものを削除する
         itemEntityMap.entrySet().removeIf(entry -> entry.getValue().getRemain() <= 0);
 
-        mobMap.entrySet().removeIf(entry -> entry.getValue().remain <= 0);
+        mobMap.entrySet().removeIf(entry -> entry.getValue().getRemain() <= 0);
     }
 
     static final float[] speeds = {0.4F,0.6F,1F,1.5F,2F};
@@ -253,7 +227,7 @@ public class ItemEntityMain {
      */
     public static void playDropEffect(Player player, ItemStack item, Location location) {
         net.minecraft.world.entity.Entity entity = spawnPacketItem(player, item,location);
-        Rarity rarity = ItemDataMain.getItemData(ItemStackMain.getItemID(((Item)entity.getBukkitEntity()).getItemStack())).rarity;
+        Rarity rarity = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(((Item)entity.getBukkitEntity()).getItemStack())).getRarity();
         moveToPlayer(player,entity,rarity, 1);
     }
 
@@ -298,8 +272,10 @@ public class ItemEntityMain {
         Rarity rarity = ItemDataMain.getItemData(ItemStackMain.getItemID(item)).rarity;
         //Bukkit.getLogger().info("mmDrop: rarity = "+rarity.toString());
 
-        ServerLevel serverWorld = ((CraftWorld)player.getWorld()).getHandle();
+        WorldServer serverWorld = ((CraftWorld)player.getWorld()).getHandle();
         // ServerWorld、座標xyz、ItemStack（＋動きxyz）
+
+
         ItemEntity entity = new ItemEntity(serverWorld, loc.getX(),loc.getY()+1, loc.getZ(), CraftItemStack.asNMSCopy(item));
         entity.makeFakeItem();
         entity.setUnlimitedLifetime();

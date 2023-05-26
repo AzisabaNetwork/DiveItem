@@ -1,5 +1,6 @@
 package com.flora30.diveitem.mythic.mechanic;
 
+import com.flora30.diveapin.ItemMain;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.ItemEntityMain;
 import com.flora30.diveitem.item.ItemStackMain;
@@ -26,7 +27,7 @@ public class DropDiveItemMechanic extends SkillMechanic implements ITargetedEnti
 
     @Override
     public boolean castAtEntity(SkillMetadata skillMetadata, AbstractEntity abstractEntity) {
-        ItemStack itemStack = ItemStackMain.getItemAsync(id);
+        ItemStack itemStack = ItemMain.INSTANCE.getItemAsync(id);
         //itemStack作成
         itemStack.setAmount(amount);
         //mobId判定

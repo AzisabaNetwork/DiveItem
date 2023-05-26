@@ -1,14 +1,9 @@
 package com.flora30.diveitem.item.data;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.item.ArtifactData;
-import com.flora30.diveapi.data.item.Rarity;
-import com.flora30.diveapi.data.item.RopeData;
-import com.flora30.diveapi.tools.Config;
-import com.flora30.diveapi.tools.ItemType;
-import com.flora30.diveapi.tools.ToolType;
+import com.flora30.diveapin.data.Rarity;
+import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveitem.craft.CookMain;
+import com.flora30.divenew.data.item.*;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.io.MythicConfig;
 import io.lumine.xikage.mythicmobs.items.MythicItem;
@@ -21,7 +16,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ItemDataConfig extends Config {
     private static File[] files = new File[100];
@@ -48,7 +45,6 @@ public class ItemDataConfig extends Config {
             String area = conf.getString("Area");
             int damage = conf.getInteger("Damage",0);
             double sell = conf.getDouble("Sell",0.0);
-            int maxSize = conf.getInteger("MaxSize",3000);
             int level = conf.getInteger("Level",1);
             int food = conf.getInteger("Food",0);
             int exp = conf.getInteger("Exp",0);
@@ -81,66 +77,69 @@ public class ItemDataConfig extends Config {
 
 
             //itemDataを作成
-            ItemData itemData = new ItemData();
-
-            itemData.area = (area);
-            itemData.type = (type);
-            itemData.damage = (damage);
-            itemData.money = (sell);
-            itemData.maxStack = (maxSize);
-            itemData.level = (level);
-            itemData.food = (food);
-            itemData.rarity = (rarity);
-            itemData.text = (text);
-            itemData.exp = exp;
-
+            ItemData itemData = new ItemData(
+                    type,
+                    area,
+                    text,
+                    rarity,
+                    sell,
+                    level,
+                    food,
+                    damage,
+                    exp
+            );
 
             // gatherData関連
             if(conf.isSet("Gather")){
-                // typeの判定
-                try{
-                    String toolTypeStr = conf.getString("Gather.Type");
-                    itemData.gatherData.toolType = (ToolType.valueOf(toolTypeStr));
-                } catch (IllegalArgumentException e){
-                    Bukkit.getLogger().info("[DiveItem-Data]ID-"+id+"のToolTypeの取得に失敗しました");
-                }
 
                 // 破壊可能なブロック
+                Set<Material> materialSet = new HashSet<>();
                 if (conf.isList("Gather.Material")){
                     List<String> materialList = conf.getStringList("Gather.Material");
                     for (String materialID : materialList){
                         try{
-                            itemData.gatherData.breakAbleMaterialSet.add(Material.valueOf(materialID));
+                            materialSet.add(Material.valueOf(materialID));
                         } catch (IllegalArgumentException ignored){}
                     }
                 }
 
-                // 他のデータ
-                itemData.gatherData.dropRate = (float) conf.getDouble("Gather.DropRate", 1.0);
-                itemData.gatherData.maxDepth = conf.getInteger("Gather.MaxDepth", 100);
+                try{
+                    itemData.setToolData(new ToolData(
+                            ToolType.valueOf(conf.getString("Gather.Type")),
+                            (float) conf.getDouble("Gather.DropRate", 1.0),
+                            conf.getInteger("Gather.MaxDepth", 100),
+                            materialSet
+                    ));
+                } catch (IllegalArgumentException e){
+                    Bukkit.getLogger().info("[DiveItem-Data]ID-"+id+"のToolTypeの取得に失敗しました");
+                }
             }
             // Rope関連
             if(conf.isSet("Rope")) {
-                itemData.ropeData = new RopeData();
-                itemData.ropeData.length = conf.getInteger("Rope.Length",5);
-                itemData.ropeData.isUpper = conf.getBoolean("Rope.IsUpper",false);
+                itemData.setRopeData(new RopeData(
+                        conf.getInteger("Rope.Length",5),
+                        conf.getBoolean("Rope.IsUpper",false)
+                ));
             }
             // Artifact関連
             if (conf.isSet("Artifact")) {
-                itemData.artifactData = new ArtifactData();
-                itemData.artifactData.value = conf.getInteger("Artifact.Value", 1);
+                itemData.setArtifactData(new ArtifactData(
+                        conf.getInteger("Artifact.Value", 1)
+                ));
             }
-
-
-            // Cook関連（ItemDataには紐づかない）
+            // Cook関連
             if (conf.isSet("Cook")) {
-                int cookTo = conf.getInteger("Cook",0);
+                int cookTo = conf.getInteger("cook",0);
                 if (cookTo != 0) {
-                    CookMain.cookMap.put(id,cookTo);
+                    itemData.setCookData(new CookData(
+                            conf.getInteger("Cook",0)
+                    ));
+                } else {
+                    Bukkit.getLogger().info("[DiveItem-Data]ID-"+id+"の料理先IDの取得に失敗しました");
                 }
             }
 
-            ItemDataMain.setItemData(id,itemData);
+            ItemDataObject.INSTANCE.getItemDataMap().put(id,itemData);
 
             count++;
             try {
@@ -302,12 +301,11 @@ public class ItemDataConfig extends Config {
         assert sec2 != null;
         //各セクションが存在するか確認
 
-        checkAndWrite(sec2, "area", data.area);
-        checkAndWrite(sec2,"type",data.type);
-        checkAndWrite(sec2,"sell",data.money);
-        checkAndWrite(sec2,"maxSize",data.maxStack);
-        checkAndWrite(sec2,"level",data.level);
-        checkAndWrite(sec2,"food",data.food);
-        checkAndWrite(sec2,"rarity",data.rarity.toString());
+        checkAndWrite(sec2, "area", data.getArea());
+        checkAndWrite(sec2,"type",data.getType());
+        checkAndWrite(sec2,"sell",data.getMoney());
+        checkAndWrite(sec2,"level",data.getLevel());
+        checkAndWrite(sec2,"food",data.getFood());
+        checkAndWrite(sec2,"rarity",data.getRarity().toString());
     }
 }

@@ -1,13 +1,15 @@
 package com.flora30.diveitem.gather;
 
-import com.flora30.diveapi.data.item.ToolData;
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveapi.tools.Config;
-import com.flora30.diveapi.tools.ToolType;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
+import com.comphenix.protocol.wrappers.nbt.NbtList;
+import com.comphenix.protocol.wrappers.nbt.NbtWrapper;
+import com.flora30.diveapin.util.Config;
+import com.flora30.divenew.data.GatherData;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.item.ToolData;
+import com.flora30.divenew.data.item.ToolType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,14 +19,17 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GatherConfig extends Config {
 
     private static File[] areaFiles = new File[100];
 
     public GatherConfig(){
-        folderCheck(RegionAPI.region.getDataFolder().getAbsolutePath() + "/area");
-        areaFiles = new File(RegionAPI.region.getDataFolder().getAbsolutePath() + "/area").listFiles();
+        areaFiles = LayerObject.INSTANCE.getLayerFile();
+//        folderCheck(RegionAPI.region.getDataFolder().getAbsolutePath() + "/area");
+//        areaFiles = new File(RegionAPI.region.getDataFolder().getAbsolutePath() + "/area").listFiles();
     }
 
     /**
@@ -32,30 +37,28 @@ public class GatherConfig extends Config {
      */
     public static ItemStack setMineBlock(int itemId, ItemStack item) {
         // 必要な ItemData を取得
-        if(ItemDataMain.getItemData(itemId) == null) return item;
-        ToolData data = ItemDataMain.getItemData(itemId).gatherData;
-        if(data.toolType == ToolType.None) return item;
-        // 必要な nms版のItemStack を取得
-        net.minecraft.world.item.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
+        if(ItemDataObject.INSTANCE.getItemDataMap().get(itemId) == null) return item;
+        ToolData data = ItemDataObject.INSTANCE.getItemDataMap().get(itemId).getToolData();
+        if (data == null) return item;
+        if(data.getToolType() == ToolType.None) return item;
 
-        // Material を StringTag にしてリストに入れる
-        // 後で tag に設定するための準備
-        ListTag listTag = new ListTag();
-        for(Material material : data.breakAbleMaterialSet){
+        // Material を リストに入れる
+        List<String> materialList = new ArrayList<>();
+        for(Material material : data.getBreakableMaterialSet()){
             //Bukkit.getLogger().info("Material.send = minecraft:" + material.toString().toLowerCase());
-            listTag.add(StringTag.valueOf("minecraft:" + material.toString().toLowerCase()));
+            materialList.add("minecraft:" + material.toString().toLowerCase());
         }
-
-        CompoundTag tag = nmsItemStack.hasTag() ? nmsItemStack.getTag() : new CompoundTag();
-        assert tag != null;
-
         // 上で作ったものを、壊せるブロックとして設定
-        tag.put("CanDestroy", listTag);
-        nmsItemStack.setTag(tag);
+        NbtList<String> nbtList = NbtFactory.ofList("CanDestroy",materialList);
+
+        NbtWrapper<?> wrapper = NbtFactory.fromItemTag(item);
+        NbtCompound compound = NbtFactory.asCompound(wrapper);
+        compound.put(nbtList);
+
+        NbtFactory.setItemTag(item,compound);
         Bukkit.getLogger().info("[DiveCore-GatherLS] アイテム " + itemId + " に破壊可能ブロックを設定しました");
 
-        // 普通のItemStackにして返却
-        return CraftItemStack.asBukkitCopy(nmsItemStack);
+        return item;
     }
 
     @Override
@@ -89,7 +92,7 @@ public class GatherConfig extends Config {
                 }
 
                 // 採掘の階層側データを作成
-                GatherLayerData gatherLayerData = new GatherLayerData();
+                GatherData gatherData = new GatherData();
 
                 // normalDrop の中は ToolType : ItemID
                 for(String toolTypeStr : normalDropSection.getKeys(false)) {
@@ -99,7 +102,7 @@ public class GatherConfig extends Config {
 
                         if(dropId == -1) { continue; }
 
-                        gatherLayerData.setNormalDrop(type, dropId);
+                        gatherData.getNormalDropMap().put(type,dropId);
                     } catch (Exception e) {
                         Bukkit.getLogger().info("[DiveCore-Gather]階層「"+key+"」の採集通常ドロップ「"+toolTypeStr+"」の取得に失敗しました");
                     }
@@ -111,7 +114,7 @@ public class GatherConfig extends Config {
                         int relicId = Integer.parseInt(relicIdStr);
                         float rate = (float) loadOrDefault("Gather", relicRateSection, relicIdStr, 0.0);
 
-                        gatherLayerData.setRelicDrop(relicId, rate);
+                        gatherData.getRelicRateMap().put(relicId, rate);
                     } catch (Exception e) {
                         Bukkit.getLogger().info("[DiveCore-Gather]階層「" + key + "」の採集遺物「" + relicIdStr + "」の取得に失敗しました");
                     }
@@ -122,7 +125,7 @@ public class GatherConfig extends Config {
                     try{
                         float rate = (float) loadOrDefault("Gather", monsterSection, monsterId, 0.0);
 
-                        gatherLayerData.setMonster(monsterId, rate);
+                        gatherData.getMonsterMap().put(monsterId, rate);
                     } catch (Exception e) {
                         Bukkit.getLogger().info("[DiveCore-monster]階層「" + key + "」の原生生物「" + monsterId + "」の取得に失敗しました");
                     }
@@ -133,14 +136,14 @@ public class GatherConfig extends Config {
                     try{
                         float rate = (float) loadOrDefault("Gather", fishMonsterSection, monsterId, 0.0);
 
-                        gatherLayerData.setFishMonster(monsterId, rate);
+                        gatherData.getFishMonsterMap().put(monsterId, rate);
                     } catch (Exception e) {
                         Bukkit.getLogger().info("[DiveCore-monster]階層「" + key + "」の釣り生物「" + monsterId + "」の取得に失敗しました");
                     }
                 }
 
 
-                GatherMain.gatherLayerMap.put(key,gatherLayerData);
+                LayerObject.INSTANCE.getGatherMap().put(key,gatherData);
                 Bukkit.getLogger().info("[DiveItem-Gather]階層「"+key+"」の採掘データを設定しました");
             }
         }

@@ -1,19 +1,24 @@
 package com.flora30.diveitem.loot.gui;
 
+import com.flora30.diveapin.ItemMain;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.diveitem.loot.LootGoods;
 import com.flora30.diveitem.loot.LootConfig;
 import com.flora30.diveitem.loot.LootMain;
+import com.flora30.divenew.data.loot.Loot;
+import com.flora30.divenew.data.loot.LootObject;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LootAdminGUITrigger {
 
     public static void onClose(InventoryCloseEvent e){
         Inventory gui = e.getInventory();
-        LootGoods list = new LootGoods();
+        ArrayList<Loot.ItemAmount> list = new ArrayList<>();
 
         for (int i = 0; i < 54; i++){
             ItemStack item = gui.getItem(i);
@@ -21,14 +26,14 @@ public class LootAdminGUITrigger {
                 continue;
             }
 
-            int id = ItemStackMain.getItemID(item);
+            int id = ItemMain.INSTANCE.getItemId(item);
             if (id == -1){
                 continue;
             }
 
             int amount = item.getAmount();
 
-            list.addItem(id,amount);
+            list.add(new Loot.ItemAmount(id,amount));
             Bukkit.getLogger().info("報酬を追加："+id+"（"+amount+"個）");
         }
 
@@ -42,7 +47,7 @@ public class LootAdminGUITrigger {
         }
         String layer = split[0];
 
-        LootMain.getLoot(layer).setLootGoods(level,list);
+        LootObject.INSTANCE.getLootMap().get(layer).getItemList().set(level,list);
         Bukkit.getLogger().info("loot報酬を登録しました（"+split[0]+" - "+split[1]+"）");
 
         LootConfig lootConfig = new LootConfig();

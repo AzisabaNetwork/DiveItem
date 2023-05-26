@@ -1,7 +1,11 @@
 package com.flora30.diveitem.craft;
 
+import com.flora30.diveapin.ItemMain;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.recipe.HideType;
+import com.flora30.divenew.data.recipe.Recipe;
+import com.flora30.divenew.data.recipe.RecipeObject;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,7 +36,7 @@ public class CraftConfig{
             if (section == null) continue;
 
             // 完成品が存在するかチェック
-            ItemStack item = ItemStackMain.getNeutralItem(id);
+            ItemStack item = ItemMain.INSTANCE.getNeutralItem(id);
             if (item == null) {
                 Bukkit.getLogger().info("[DiveItem-Craft]ID「"+key+"」のアイテムは存在しません");
                 continue;
@@ -111,7 +115,7 @@ public class CraftConfig{
 
             // レシピを作成
             Recipe recipe = new Recipe(materials,hides,amount);
-            CraftMain.recipeMap.put(id,recipe);
+            RecipeObject.INSTANCE.getRecipeMap().put(id,recipe);
             Bukkit.getLogger().info("[DiveItem-Craft]レシピ "+id+" を登録");
         }
 
@@ -119,7 +123,7 @@ public class CraftConfig{
     }
 
     public static void save(int id) {
-        Recipe recipe = CraftMain.recipeMap.get(id);
+        Recipe recipe = RecipeObject.INSTANCE.getRecipeMap().get(id);
         if (recipe == null) return;
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -129,11 +133,11 @@ public class CraftConfig{
         }
 
         // 名前（メモ用）
-        ItemStack item = ItemStackMain.getNeutralItem(id);
+        ItemStack item = ItemMain.INSTANCE.getNeutralItem(id);
         if (item == null || item.getItemMeta() == null) return;
         String name = item.getItemMeta().getDisplayName();
         section.set("name(Option)",name);
-        section.set("amount",recipe.amount);
+        section.set("amount",recipe.getAmount());
 
         // Material
         for (int i = 0; i < 4; i++) {
@@ -143,7 +147,7 @@ public class CraftConfig{
                     sb.append(",");
                 }
 
-                String str = String.valueOf(recipe.materials[i*3 + j]);
+                String str = String.valueOf(recipe.getMaterials()[i*3 + j]);
                 if (str.equals("0")) {
                     str = "o";
                 }
@@ -159,7 +163,7 @@ public class CraftConfig{
                 if (j != 0) {
                     sb.append(",");
                 }
-                String str = String.valueOf(recipe.hides[i*3 + j]);
+                String str = String.valueOf(recipe.getHides()[i*3 + j]);
                 if (str.equals("null")) {
                     str = "o";
                 }

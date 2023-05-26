@@ -1,8 +1,13 @@
 package com.flora30.diveitem.loot;
 
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveapi.tools.Config;
+import com.flora30.diveapin.data.Rarity;
+import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.loot.Loot;
+import com.flora30.divenew.data.loot.LootLevel;
+import com.flora30.divenew.data.loot.LootLocation;
+import com.flora30.divenew.data.loot.LootObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -37,10 +42,10 @@ public class LootConfig extends Config {
         double pRange = loadOrDefault("loot",config,"particleRange",1.0);
         boolean fillAir = config.getBoolean("fillAir",false);
 
-        LootMain.particleDistance = pDistance;
-        LootMain.particleCount = pCount;
-        LootMain.particleRange = pRange;
-        LootMain.fillAir = fillAir;
+        LootObject.INSTANCE.setParticleDistance(pDistance);
+        LootObject.INSTANCE.setParticleCount(pCount);
+        LootObject.INSTANCE.setParticleRange(pRange);
+        LootObject.INSTANCE.setFillAir(fillAir);
 
         if(config.getConfigurationSection("lootlevel") == null){
             config.createSection("lootlevel");
@@ -52,23 +57,27 @@ public class LootConfig extends Config {
             Particle pType = Particle.valueOf(config.getString("lootlevel."+key+".particleType","END_ROD"));
             Material material = Material.valueOf(config.getString("lootlevel."+key+".material","CHEST"));
 
-            LootLevel lootLevel = new LootLevel();
-            lootLevel.setTitlePlus(titlePlus);
-            lootLevel.setChestSlot(chestSlot);
-            lootLevel.setPercent(percent);
-            lootLevel.particle = pType;
-            lootLevel.material = material;
-            LootMain.addLootLevel(lootLevel);
+            LootLevel lootLevel = new LootLevel(
+                    titlePlus,
+                    chestSlot,
+                    percent,
+                    pType,
+                    material
+            );
+            LootObject.INSTANCE.getLootLevelList().add(lootLevel);
         }
 
         //失敗時アイテム
         int fAmount = loadOrDefault("loot",config,"failed.amount",1);
         int fID = loadOrDefault("loot",config,"failed.itemID",1);
+        Loot.ItemAmount failed = new Loot.ItemAmount(fID,fAmount);
+        LootObject.INSTANCE.setFailedLoot(failed);
 
-        LootGood failed = new LootGood();
-        failed.setAmount(fAmount);
-        failed.setItemID(fID);
-        LootMain.failedLoot = failed;
+        // レアリティに応じたドロップ率
+        for (Rarity rarity: Rarity.values()){
+            ItemDataObject.INSTANCE.getDropRateMap().put(rarity,config.getDouble("rarity."+rarity.toString().toLowerCase(),1));
+        }
+
 
         Bukkit.getLogger().info("[DiveItem-Loot]ルートチェスト全体の設定を読み込みました");
 
@@ -96,7 +105,7 @@ public class LootConfig extends Config {
                     List<String> list = sec2.getStringList("loot.Lv" + i);
 
                     //報酬リストの新規作成
-                    LootGoods goods = new LootGoods();
+                    ArrayList<Loot.ItemAmount> itemList = new ArrayList<>();
 
                     for (String str : list) {
                         String[] split = str.split(",");
@@ -110,11 +119,11 @@ public class LootConfig extends Config {
                         }
 
                         //報酬の新規作成
-                        goods.addItem(lootItemID, lootAmount);
+                        itemList.add(new Loot.ItemAmount(lootItemID, lootAmount));
                     }
 
                     //Lv.iの報酬リストとして設定
-                    loot.setLootGoods(i, goods);
+                    loot.getItemList().set(i,itemList);
                 }
 
                 //LootLocationの読み込み
@@ -127,12 +136,12 @@ public class LootConfig extends Config {
                         if (loc == null){
                             continue;
                         }
-                        loot.addLocation(loc);
+                        loot.getLocationList().add(loc);
                     }
                 }
 
-                LootMain.setLoot(layerID, loot);
-                LootMain.setAmount(layerID, amount);
+                LootObject.INSTANCE.getLootMap().put(layerID,loot);
+                LootObject.INSTANCE.getAmountMap().put(layerID,amount);
                 Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」のルートチェストを読み込みました");
             }
         }
@@ -153,14 +162,15 @@ public class LootConfig extends Config {
             Bukkit.getLogger().info("[DiveItem-Loot]line["+line+"]の読み取りに失敗しました");
             return null;
         }
-        LootLocation loc = new LootLocation();
-        loc.setWorld(split[0]);
-        loc.setBlockX(x);
-        loc.setBlockY(y);
-        loc.setBlockZ(z);
-        loc.setFace(face);
 
-        return loc;
+        return new LootLocation(
+                split[0],
+                x,
+                y,
+                z,
+                face,
+                false
+        );
     }
 
 
@@ -191,23 +201,22 @@ public class LootConfig extends Config {
     }
 
     private void save(String layerID, FileConfiguration file, File saveTo){
-        Loot loot = LootMain.getLoot(layerID);
+        Loot loot = LootObject.INSTANCE.getLootMap().get(layerID);
         if (!file.isConfigurationSection(layerID)) {
             file.createSection(layerID);
         }
         ConfigurationSection sec1 = file.getConfigurationSection(layerID);
         assert sec1 != null;
 
-        checkAndWrite(sec1,"amount", LootMain.getAmount(layerID));
+        checkAndWrite(sec1,"amount", LootObject.INSTANCE.getAmountMap().get(layerID));
 
         //報酬
-        for(int i = 1; i <= loot.getMaxLevel(); i++) {
-            Bukkit.getLogger().info("i = "+i+" ( max = "+loot.getMaxLevel());
-            LootGoods lootGoods = loot.getLootGood(i);
+        for(int i = 1; i <= loot.getItemList().size(); i++) {
+            Bukkit.getLogger().info("i = "+i+" ( max = "+loot.getItemList().size());
             //報酬リストを作成
             List<String> list = new ArrayList<>();
-            for (LootGood good : lootGoods.getItemList()) {
-                String goodString = good.getItemID() + "," + good.getAmount();
+            for (Loot.ItemAmount ia : loot.getItemList().get(i)) {
+                String goodString = ia.getItemId() + "," + ia.getAmount();
                 list.add(goodString);
             }
             checkAndWrite(sec1, "loot.Lv" + i, list);
@@ -215,7 +224,7 @@ public class LootConfig extends Config {
 
         //Location
         List<String> lootLocList = new ArrayList<>();
-        for(int i = 1; i <= loot.getLocationAmount(); i++){
+        for(int i = 1; i <= loot.getLocationList().size(); i++){
             lootLocList.add(composeLootLoc(loot.getLootLoc(i-1)));
         }
         checkAndWrite(sec1,"locationList",lootLocList);

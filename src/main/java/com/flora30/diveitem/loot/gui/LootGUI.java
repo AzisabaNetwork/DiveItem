@@ -1,19 +1,16 @@
 package com.flora30.diveitem.loot.gui;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.Point;
-import com.flora30.diveapi.data.player.LevelData;
-import com.flora30.diveapi.event.HelpEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.HelpType;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.diveitem.loot.Loot;
-import com.flora30.diveitem.loot.LootGood;
-import com.flora30.diveitem.loot.LootGoods;
-import com.flora30.diveitem.loot.LootMain;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.LevelData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.HelpEvent;
+import com.flora30.diveapin.event.HelpType;
+import com.flora30.divenew.data.PointObject;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.loot.Loot;
+import com.flora30.divenew.data.loot.LootObject;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -27,7 +24,7 @@ import java.util.List;
 public class LootGUI {
 
     public static void open(Player player, Loot loot, int level) {
-        if(CoreAPI.getPlayerData(player.getUniqueId()) == null) return;
+        if(PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()) == null) return;
 
         Bukkit.getPluginManager().callEvent(new HelpEvent(player, HelpType.LootChestGUI));
         Inventory gui = create(player, loot, level);
@@ -36,9 +33,9 @@ public class LootGUI {
 
 
     private static Inventory create(Player player, Loot loot, int level) {
-        LevelData data = CoreAPI.getPlayerData(player.getUniqueId()).levelData;
+        LevelData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLevelData();
         //プレイヤーデータの取得
-        double luckyRate = Point.convertLuckyRate(data.pointLuc);
+        double luckyRate = PointObject.INSTANCE.getLuckyRate(data.getPointLuc());
         //Bukkit.getLogger().info("[Loot]LuckyRate = "+luckyRate);
 
         //ラッキーチェスト判定
@@ -52,31 +49,34 @@ public class LootGUI {
         }
 
         //名前の＋を取り出してGUIを新規作成
-        int maxSlot = LootMain.getLootLevel(level).getChestSlot();
-        String plus = LootMain.getLootLevel(level).getTitlePlus();
+        int maxSlot = LootObject.INSTANCE.getLootLevelList().get(level).getChestSlot();
+        String plus = LootObject.INSTANCE.getLootLevelList().get(level).getTitlePlus();
         Inventory gui = Bukkit.createInventory(null, maxSlot,   "宝箱 " + plus);
         int slotPlaced = 0;
 
         //報酬の配置
-        LootGoods lootGoods = loot.getLootGood(level);
-        List<LootGood> lootGoodList = new ArrayList<>(lootGoods.getItemList());
-        Collections.shuffle(lootGoodList);
+        List<Loot.ItemAmount> itemList = loot.getItemList().get(level);
+        Collections.shuffle(itemList);
         //報酬リストを回す
-        for (LootGood good : lootGoodList) {
-            ItemData iData = ItemDataMain.getItemData(good.getItemID());
+        for (Loot.ItemAmount ia : itemList) {
+            ItemData iData = ItemDataObject.INSTANCE.getItemDataMap().get(ia.getItemId());
             if (iData == null) {
                 continue;
             }
-            double rate = iData.rarity.rate;
-            //入手するかの判定
-            if (Math.random() > rate) {
-                //レアドロップ失敗時：アイテムを失敗時のものに変更
-                good = LootMain.failedLoot;
-            }
+            double rate = ItemDataObject.INSTANCE.getDropRateMap().get(iData.getRarity());
 
-            //アイテムの取得
-            ItemStack item = ItemStackMain.getItem(good.getItemID());
-            item.setAmount(good.getAmount());
+            //入手するかの判定
+            ItemStack item;
+            if (Math.random() <= rate) {
+                //アイテムの取得
+                item = ItemMain.INSTANCE.getItem(ia.getItemId());
+                item.setAmount(ia.getAmount());
+            }
+            else {
+                //レアドロップ失敗時：アイテムを失敗時のものに変更
+                item = ItemMain.INSTANCE.getItem(LootObject.INSTANCE.getFailedLoot().getItemId());
+                item.setAmount(LootObject.INSTANCE.getFailedLoot().getAmount());
+            }
 
             //gui上にランダム配置
             int slot = (int) Math.round(Math.random() * (gui.getSize() - 1));

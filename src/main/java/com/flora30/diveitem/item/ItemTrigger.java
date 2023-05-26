@@ -1,14 +1,14 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.event.FirstJoinEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.ItemAPI;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.FirstJoinEvent;
+import com.flora30.diveapin.util.PlayerItem;
 import com.flora30.diveitem.craft.gui.RecipeEditorGUI;
-import com.flora30.diveitem.item.data.ItemDataMain;
 import com.flora30.diveitem.util.NumberUtil;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,54 +38,54 @@ public class ItemTrigger {
         }
     }
     private static void LogItemData(int id) {
-        ItemData data = ItemDataMain.getItemData(id);
+        ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(id);
         if(data == null){
             Bukkit.getLogger().info("[ID-" + id + "]は登録されていません");
             return;
         }
         Bukkit.getLogger().info("[ID-" + id + "]の情報を表示します");
-        Bukkit.getLogger().info("* area = " + data.area);
-        Bukkit.getLogger().info("* type = " + data.type);
-        Bukkit.getLogger().info("* level = " + data.level);
-        Bukkit.getLogger().info("* rarity = " + data.rarity);
+        Bukkit.getLogger().info("* area = " + data.getArea());
+        Bukkit.getLogger().info("* type = " + data.getType());
+        Bukkit.getLogger().info("* level = " + data.getLevel());
+        Bukkit.getLogger().info("* rarity = " + data.getRarity());
     }
 
     // 初期アイテム
     public static void onFirstJoin(FirstJoinEvent e) {
         Bukkit.getLogger().info("FirstJoinEvent listened");
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(1));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(1));
 
-        ItemStack rope = ItemAPI.getItem(3005);
+        ItemStack rope = ItemMain.INSTANCE.getItem(3005);
         rope.setAmount(16);
-        PlayerItem.giveItem(e.player, rope);
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), rope);
 
 
-        ItemStack potion = ItemAPI.getItem(3001);
+        ItemStack potion = ItemMain.INSTANCE.getItem(3001);
         potion.setAmount(4);
-        PlayerItem.giveItem(e.player,potion);
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(),potion);
 
-        ItemStack food = ItemAPI.getItem(3008);
+        ItemStack food = ItemMain.INSTANCE.getItem(3008);
         food.setAmount(20);
-        PlayerItem.giveItem(e.player,food);
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(),food);
 
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(3012));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(3013));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(3014));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(1001));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(3012));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(3013));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(3014));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(1001));
 
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(1002));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(1002));
         Bukkit.getLogger().info("FirstJoin - 1002 item give");
 
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(1003));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(1004));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(3018));
-        PlayerItem.giveItem(e.player, ItemAPI.getItem(3019));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(1003));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(1004));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(3018));
+        PlayerItem.INSTANCE.giveItem(e.getPlayer(), ItemMain.INSTANCE.getItem(3019));
 
-        PlayerData data = CoreAPI.getPlayerData(e.player.getUniqueId());
-        data.money = 1000;
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(e.getPlayer().getUniqueId());
+        data.setMoney(1000);
 
-        e.player.sendMessage("ギルドからの支給品を受け取りました！奈落の旅へようこそ！");
-        e.player.playSound(e.player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH,1,1);
+        e.getPlayer().sendMessage("ギルドからの支給品を受け取りました！奈落の旅へようこそ！");
+        e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH,1,1);
     }
 
     public static void onCommand(Player player, String args1, String args2, String args3){
@@ -122,7 +122,7 @@ public class ItemTrigger {
                     id = Integer.parseInt(args2);
                     amount = NumberUtil.parseInt(args3, 1);
 
-                    ItemStack item = ItemStackMain.getItem(id);
+                    ItemStack item = ItemMain.INSTANCE.getItem(id);
                     if (item == null) {
                         player.sendMessage("[ID-" + args2 + "]のアイテムは存在しません");
                         return;
@@ -139,7 +139,7 @@ public class ItemTrigger {
                 int id;
                 try {
                     id = Integer.parseInt(args2);
-                    if (ItemStackMain.getNeutralItem(id) == null) {
+                    if (ItemMain.INSTANCE.getNeutralItem(id) == null) {
                         player.sendMessage("[ID-" + args2 + "]のアイテムは存在しません");
                         return;
                     }

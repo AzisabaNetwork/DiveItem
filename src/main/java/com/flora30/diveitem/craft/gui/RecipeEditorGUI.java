@@ -1,11 +1,13 @@
 package com.flora30.diveitem.craft.gui;
 
-import com.flora30.diveapi.tools.GuiItem;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.util.GuiItem;
 import com.flora30.diveitem.craft.CraftConfig;
 import com.flora30.diveitem.craft.CraftMain;
-import com.flora30.diveitem.craft.HideType;
-import com.flora30.diveitem.craft.Recipe;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.recipe.HideType;
+import com.flora30.divenew.data.recipe.Recipe;
+import com.flora30.divenew.data.recipe.RecipeObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -21,21 +23,21 @@ public class RecipeEditorGUI {
 
     public static Inventory getGui(int recipeId) {
         // 準備
-        Recipe recipe = CraftMain.recipeMap.get(recipeId);
+        Recipe recipe = RecipeObject.INSTANCE.getRecipeMap().get(recipeId);
         if (recipe == null) recipe = new Recipe(new int[12],new HideType[12],1);
         Inventory gui = Bukkit.createInventory(null, 54, ChatColor.GOLD + "クラフト（編集："+recipeId+"）");
-        GuiItem.grayBack(gui);
+        GuiItem.INSTANCE.grayBack(gui);
 
         // 表示アイテムを取得してguiの左側に置く
         for (int i = 0; i < 12; i++) {
-            gui.setItem(recipeRegion.get(i), ItemStackMain.getItem(recipe.materials[i]));
+            gui.setItem(recipeRegion.get(i), ItemMain.INSTANCE.getItem(recipe.getMaterials()[i]));
 
-            if (recipe.hides[i] == null) {
+            if (recipe.getHides()[i] == null) {
                 gui.setItem(craftRegion.get(i),null);
                 continue;
             }
 
-            switch (recipe.hides[i]) {
+            switch (recipe.getHides()[i]) {
                 case White -> gui.setItem(craftRegion.get(i), new ItemStack(Material.WHITE_WOOL));
                 case Gray -> gui.setItem(craftRegion.get(i), new ItemStack(Material.GRAY_WOOL));
                 case Black -> gui.setItem(craftRegion.get(i), new ItemStack(Material.BLACK_WOOL));
@@ -44,14 +46,14 @@ public class RecipeEditorGUI {
         }
 
         // その他を置く
-        ItemStack product = ItemStackMain.getItem(recipeId);
+        ItemStack product = ItemMain.INSTANCE.getItem(recipeId);
         assert product != null;
-        product.setAmount(recipe.amount);
+        product.setAmount(recipe.getAmount());
         gui.setItem(4, product);
-        gui.setItem(0,GuiItem.getItem(Material.WOODEN_AXE));
-        gui.setItem(2,GuiItem.getItem(Material.WOODEN_AXE));
-        gui.setItem(6,GuiItem.getItem(Material.WOODEN_AXE));
-        gui.setItem(8,GuiItem.getItem(Material.WOODEN_AXE));
+        gui.setItem(0,GuiItem.INSTANCE.getItem(Material.WOODEN_AXE));
+        gui.setItem(2,GuiItem.INSTANCE.getItem(Material.WOODEN_AXE));
+        gui.setItem(6,GuiItem.INSTANCE.getItem(Material.WOODEN_AXE));
+        gui.setItem(8,GuiItem.INSTANCE.getItem(Material.WOODEN_AXE));
 
         return gui;
     }
@@ -70,7 +72,7 @@ public class RecipeEditorGUI {
     public static void onClose(InventoryCloseEvent e) {
         boolean mExist = false;
         Inventory inv = e.getInventory();
-        int recipeId = ItemStackMain.getItemID(inv.getItem(4));
+        int recipeId = ItemMain.INSTANCE.getItemId(inv.getItem(4));
 
         int[] materials = new int[12];
         HideType[] hides = new HideType[12];
@@ -80,7 +82,7 @@ public class RecipeEditorGUI {
             ItemStack item = e.getInventory().getItem(slot);
             if (item == null) continue;
 
-            int id = ItemStackMain.getItemID(item);
+            int id = ItemMain.INSTANCE.getItemId(item);
             if (id == -1) continue;
 
             materials[i] = id;
@@ -111,7 +113,7 @@ public class RecipeEditorGUI {
 
         Recipe recipe = new Recipe(materials,hides,product.getAmount());
 
-        CraftMain.recipeMap.put(recipeId,recipe);
+        RecipeObject.INSTANCE.getRecipeMap().put(recipeId,recipe);
         CraftConfig.save(recipeId);
 
         e.getPlayer().sendMessage("レシピ"+recipeId+"（"+product.getItemMeta().getDisplayName()+"）を保存しました");

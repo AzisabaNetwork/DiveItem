@@ -1,18 +1,20 @@
 package com.flora30.diveitem.gather.type;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.data.Point;
-import com.flora30.diveapi.data.item.ToolData;
-import com.flora30.diveapi.event.HelpEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.RegionAPI;
-import com.flora30.diveapi.tools.HelpType;
-import com.flora30.diveapi.tools.ToolType;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.diveitem.gather.GatherLayerData;
+import com.flora30.diveapin.ItemEntityObject;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.HelpEvent;
+import com.flora30.diveapin.event.HelpType;
 import com.flora30.diveitem.gather.GatherMain;
 import com.flora30.diveitem.item.ItemEntityMain;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.GatherData;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.PointObject;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.item.ToolData;
+import com.flora30.divenew.data.item.ToolType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -35,7 +37,7 @@ public abstract class Gather {
     // 採取に必要なデータ
     protected PlayerData playerData;
     protected ToolData toolData;
-    protected GatherLayerData gatherLayerData;
+    protected GatherData gatherData;
 
     // 採取に使うスタミナ
     protected int staminaCost = 20;
@@ -65,21 +67,21 @@ public abstract class Gather {
 
         //Bukkit.getLogger().info("Gather: 採掘開始");
         // 採取に必要な PlayerData がない
-        if(CoreAPI.getPlayerData(player.getUniqueId()) == null) return;
-        // 採取に必要な GatherToolItemData がない
-        if(ItemDataMain.getItemData(toolId) == null) return;
-        // 採取に必要な GatherLayer がない
-        if(GatherMain.gatherLayerMap.get(RegionAPI.getLayerName(location)) == null) return;
+        if(PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()) == null) return;
+        // 採取に必要な ToolData がない
+        if(ItemDataObject.INSTANCE.getItemDataMap().get(toolId) == null) return;
+        // 採取に必要な GatherData がない
+        if(LayerObject.INSTANCE.getGatherMap().get(LayerObject.INSTANCE.getLayerName(location)) == null) return;
 
         //Bukkit.getLogger().info("Gather: データOK");
 
         // 必要なデータを取得
-        playerData = CoreAPI.getPlayerData(player.getUniqueId());
-        toolData = ItemDataMain.getItemData(toolId).gatherData;
-        gatherLayerData = GatherMain.gatherLayerMap.get(RegionAPI.getLayerName(location));
+        playerData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        toolData = ItemDataObject.INSTANCE.getItemDataMap().get(toolId).getToolData();
+        gatherData = LayerObject.INSTANCE.getGatherMap().get(LayerObject.INSTANCE.getLayerName(location));
 
         // 深度判定
-        if (RegionAPI.getDepth(location) > toolData.maxDepth) {
+        if (LayerObject.INSTANCE.getDepth(location) > toolData.getMaxDepth()) {
             player.playSound(player.getLocation(), Sound.ENTITY_CREEPER_DEATH, 1, 1);
             player.sendMessage(ChatColor.RED + "道具が深度に耐えられないようだ・・・");
             return;
@@ -95,10 +97,10 @@ public abstract class Gather {
 
         // 耐久値消費
         ItemStack item;
-        if (ItemStackMain.getItemID(player.getInventory().getItemInMainHand()) == toolId) {
+        if (ItemMain.INSTANCE.getItemId(player.getInventory().getItemInMainHand()) == toolId) {
             item = player.getInventory().getItemInMainHand();
         }
-        else if (ItemStackMain.getItemID(player.getInventory().getItemInOffHand()) == toolId) {
+        else if (ItemMain.INSTANCE.getItemId(player.getInventory().getItemInOffHand()) == toolId) {
             item = player.getInventory().getItemInOffHand();
         }
         else{
@@ -154,7 +156,7 @@ public abstract class Gather {
             return;
         }
 
-        ItemEntityMain.SpawnItem(ItemStackMain.getItem(dropId), location.add(0.5, 0.5, 0.5), player);
+        ItemEntityObject.INSTANCE.spawnItem(ItemMain.INSTANCE.getItem(dropId), location.add(0.5, 0.5, 0.5), player);
     }
 
     ///////////////////////////////////
@@ -166,10 +168,10 @@ public abstract class Gather {
      * @return 処理を続けて大丈夫？（スタミナの消費が行われれば True）
      */
     protected boolean checkStamina(){
-        if(playerData.currentST < staminaCost) {
+        if(playerData.getCurrentST() < staminaCost) {
             return false;
         }
-        playerData.currentST -= staminaCost;
+        playerData.setCurrentST(playerData.getCurrentST() - staminaCost);
         return true;
     }
 
@@ -190,7 +192,7 @@ public abstract class Gather {
      */
     protected boolean checkDrop(){
         // ドロップ判定：ツール固有の確率
-        double dropRate = toolData.dropRate;
+        double dropRate = toolData.getDropRate();
 
         // 0.0 ~ 1.0 の中で確率判定
         return Math.random() <= dropRate;
@@ -202,7 +204,7 @@ public abstract class Gather {
      */
     protected boolean isRelic(){
         // 遺物ドロップ判定 : 初期 firstRelicRate
-        double rate = firstRelicRate * Point.convertGatherRelicRate(playerData.levelData.pointLuc);
+        double rate = firstRelicRate * PointObject.INSTANCE.getGatherRelicRate(playerData.getLevelData().getPointLuc());
         // 0.0 ~ 1.0 の中で確率判定
         return Math.random() <= rate;
     }
@@ -211,12 +213,12 @@ public abstract class Gather {
      * ドロップアイテムのIDを取得する
      */
     protected int GetDropId(){
-        ToolType toolType = toolData.toolType;
+        ToolType toolType = toolData.getToolType();
 
         if(!isRelic()){
             // 通常ドロップの演出
             player.playSound(player.getLocation(), normalSound,1,1);
-            return gatherLayerData.getNormalDrop(toolType);
+            return gatherData.getNormalDropMap().get(toolType);
         }
 
         // 遺物が当たった演出
@@ -226,13 +228,13 @@ public abstract class Gather {
         // どの遺物？
         double rateWhich = Math.random();
         double rateNow = 0;
-        for(int relicId : gatherLayerData.getRelicRateMap().keySet()){
-            rateNow += gatherLayerData.getRelicRateMap().get(relicId);
+        for(int relicId : gatherData.getRelicRateMap().keySet()){
+            rateNow += gatherData.getRelicRateMap().get(relicId);
             if(rateWhich <= rateNow){
                 return relicId;
             }
         }
         //Bukkit.getLogger().info("[DiveItem-Gather]遺物ドロップ判定に失敗しました");
-        return gatherLayerData.getNormalDrop(toolType);
+        return gatherData.getNormalDropMap().get(toolType);
     }
 }

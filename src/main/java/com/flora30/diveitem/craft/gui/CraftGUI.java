@@ -1,20 +1,22 @@
 package com.flora30.diveitem.craft.gui;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.GuiItem;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.util.GuiItem;
+import com.flora30.diveapin.util.PlayerItem;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.craft.CraftMain;
-import com.flora30.diveitem.craft.Recipe;
-import com.flora30.diveitem.craft.RecipePhase;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.recipe.Recipe;
+import com.flora30.divenew.data.recipe.RecipeObject;
+import com.flora30.divenew.data.recipe.RecipePhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -28,17 +30,17 @@ public class CraftGUI {
 
     public static Inventory getGui(Player player, int recipeId) {
         // レシピの段階を取得
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
         RecipePhase phase = null;
-        if (data.foundRecipeSet.contains(recipeId)) phase = RecipePhase.Found;
-        if (data.completedRecipeSet.contains(recipeId)) phase = RecipePhase.Completed;
+        if (data.getFoundRecipeSet().contains(recipeId)) phase = RecipePhase.Found;
+        if (data.getCompletedRecipeSet().contains(recipeId)) phase = RecipePhase.Completed;
         // レシピを習得していない場合（想定外）
         if (phase == null) return null;
 
         // 準備
-        Recipe recipe = CraftMain.recipeMap.get(recipeId);
+        Recipe recipe = RecipeObject.INSTANCE.getRecipeMap().get(recipeId);
         Inventory gui = Bukkit.createInventory(null, 54, "クラフト");
-        GuiItem.grayBack(gui);
+        GuiItem.INSTANCE.grayBack(gui);
 
         // 表示アイテムを取得してguiの左側に置く
         ItemStack[] materials = null;
@@ -59,11 +61,11 @@ public class CraftGUI {
         }
 
         // その他を置く
-        ItemStack product = ItemStackMain.getItem(recipeId);
+        ItemStack product = ItemMain.INSTANCE.getItem(recipeId);
         assert product != null;
-        product.setAmount(recipe.amount);
+        product.setAmount(recipe.getAmount());
         gui.setItem(4, product);
-        gui.setItem(returnPoint,GuiItem.getReturn());
+        gui.setItem(returnPoint,GuiItem.INSTANCE.getReturn());
 
         return gui;
     }
@@ -75,17 +77,17 @@ public class CraftGUI {
         Inventory inv = player.getOpenInventory().getTopInventory();
         ItemStack product = inv.getItem(4);
         if (product == null) return;
-        int recipeId = ItemStackMain.getItemID(product);
-        Recipe recipe = CraftMain.recipeMap.get(recipeId);
+        int recipeId = ItemMain.INSTANCE.getItemId(product);
+        Recipe recipe = RecipeObject.INSTANCE.getRecipeMap().get(recipeId);
         // 合っている場合は continue
         int minAmount = 64;
         for (int i = 0; i < 12; i++) {
             ItemStack item = inv.getItem(craftRegion.get(i));
             if (item == null) {
-                if (recipe.materials[i] == 0) continue;
+                if (recipe.getMaterials()[i] == 0) continue;
                 return;
             }
-            if (ItemStackMain.getItemID(item) == recipe.materials[i]) {
+            if (ItemMain.INSTANCE.getItemId(item) == recipe.getMaterials()[i]) {
                 minAmount = Math.min(item.getAmount(), minAmount);
                 continue;
             }
@@ -110,7 +112,7 @@ public class CraftGUI {
 
             // 時間をずらすことで、いっぱいになった時の対策
             DiveItem.plugin.delayedTask(giveTime, () -> {
-                PlayerItem.giveItem(player,give);
+                PlayerItem.INSTANCE.giveItem(player,give);
             });
             giveTime++;
 
@@ -124,14 +126,14 @@ public class CraftGUI {
         DiveItem.plugin.delayedTask(10,() -> setBack(inv, Material.GRAY_STAINED_GLASS_PANE));
 
         // Foundだった場合、Completedにセットしなおす
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        if (data.foundRecipeSet.contains(recipeId)){
-            data.completedRecipeSet.add(recipeId);
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        if (data.getFoundRecipeSet().contains(recipeId)){
+            data.getCompletedRecipeSet().add(recipeId);
             ItemStack[] materials = recipe.getCompletedMaterials();
             for (int i = 0; i < 12; i++) {
                 inv.setItem(recipeRegion.get(i), materials[i]);
             }
-            data.foundRecipeSet.remove(recipeId);
+            data.getFoundRecipeSet().remove(recipeId);
         }
     }
 
@@ -189,7 +191,7 @@ public class CraftGUI {
         for (int i : backRegion) {
             ItemStack backItem = inv.getItem(i);
             assert backItem != null;
-            if (ItemStackMain.getItemID(backItem) != -1) continue;
+            if (ItemMain.INSTANCE.getItemId(backItem) != -1) continue;
             if (backItem.getType() != material) {
                 backItem.setType(material);
             }
@@ -202,7 +204,7 @@ public class CraftGUI {
     public static void onClose(InventoryCloseEvent e) {
         for (int i : craftRegion) {
             if (e.getInventory().getItem(i) != null) {
-                PlayerItem.giveItem((Player) e.getPlayer(), e.getInventory().getItem(i));
+                PlayerItem.INSTANCE.giveItem((Player) e.getPlayer(), e.getInventory().getItem(i));
             }
         }
     }

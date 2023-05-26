@@ -1,14 +1,14 @@
 package com.flora30.diveitem.gather.type;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.data.Point;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.plugins.RegionAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveitem.gather.GatherLayerData;
 import com.flora30.diveitem.gather.GatherMain;
 import com.flora30.diveitem.mythic.DMythicUtil;
 import com.flora30.diveitem.util.BlockUtil;
+import com.flora30.divenew.data.GatherData;
+import com.flora30.divenew.data.LayerObject;
+import com.flora30.divenew.data.PointObject;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,12 +38,12 @@ public class Mining extends Gather{
      */
     @Override
     protected boolean checkMonster() {
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        GatherLayerData gatherLayerData = GatherMain.gatherLayerMap.get(RegionAPI.getLayerName(location));
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        GatherData gatherData = LayerObject.INSTANCE.getGatherMap().get(LayerObject.INSTANCE.getLayerName(location));
 
         // 原生生物判定 : 初期 firstMonsterRate %
         // 不都合なイベント：ステータスはマイナス値として反映
-        double rate = firstMonsterRate * Point.convertGatherMonsterRate(data.levelData.pointInt);
+        double rate = firstMonsterRate * PointObject.INSTANCE.getGatherMonsterRate(data.getLevelData().getPointInt());
 
         // 判定成功：Mobを沸かせる＋演出
         if(Math.random() < rate){
@@ -51,7 +51,7 @@ public class Mining extends Gather{
             if(!BlockUtil.isIgnoreBlockType(spawnLoc.getBlock())){
                 spawnLoc = player.getLocation();
             }
-            MythicMobs.inst().getMobManager().spawnMob(gatherLayerData.getRandomMob(), spawnLoc);
+            MythicMobs.inst().getMobManager().spawnMob(gatherData.getRandomMob(), spawnLoc);
 
             return false;
         }
@@ -80,7 +80,7 @@ public class Mining extends Gather{
         DiveItem.plugin.delayedTask(animationTime, () -> {
             player.sendBlockChange(location, Bukkit.createBlockData(Material.BEDROCK));
             // bedrockTickだけ維持される
-            CoreAPI.getPlayerData(player.getUniqueId()).gatherBedrockMap.put(location, bedrockTick);
+            PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getGatherBedrockMap().put(location, bedrockTick);
         });
     }
 }

@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -12,11 +12,11 @@ public class MythicMain {
     public static Set<String> mythicObjectives = new HashSet<>();
 
     public static void scoreCheck(Player player){
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
         if (data == null){
             return;
         }
-        Map<String,Integer> coolDownMap = data.coolDownMap;
+        Map<String,Integer> coolDownMap = data.getCoolDownMap();
 
         for (String name : mythicObjectives){
             if (!coolDownMap.containsKey(name)){

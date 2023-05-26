@@ -1,12 +1,7 @@
 package com.flora30.diveitem;
 
-import com.flora30.diveapi.data.ItemData;
-import com.flora30.diveapi.event.FirstJoinEvent;
-import com.flora30.diveapi.event.GetItemEvent;
-import com.flora30.diveapi.event.LayerChangeEvent;
-import com.flora30.diveapi.event.SaveItemEvent;
-import com.flora30.diveapi.plugins.ItemAPI;
-import com.flora30.diveapi.tools.ItemType;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.event.*;
 import com.flora30.diveitem.craft.gui.CraftGUI;
 import com.flora30.diveitem.craft.gui.CraftListGUI;
 import com.flora30.diveitem.craft.gui.RecipeEditorGUI;
@@ -25,6 +20,9 @@ import com.flora30.diveitem.trade.TradeGUI;
 import com.flora30.diveitem.trade.TradeMain;
 import com.flora30.diveitem.whistle.EnderChestGUI;
 import com.flora30.diveitem.whistle.WhistleGUI;
+import com.flora30.divenew.data.item.ItemData;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.item.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -170,6 +168,11 @@ public class Listeners implements Listener, CommandExecutor {
     }
 
     @EventHandler
+    public void onPutItem(PutItemEntityEvent e) {
+        ItemEntityMain.onPutItem(e);
+    }
+
+    @EventHandler
     public void onInteractEntity(PlayerInteractEntityEvent e) {
         TradeMain.onInteract(e);
     }
@@ -247,10 +250,10 @@ public class Listeners implements Listener, CommandExecutor {
         for (int i = 0; i < size; i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getItemMeta() == null) continue;
-            ItemData data = ItemAPI.getItemData(ItemAPI.getItemID(item));
+            ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(item));
             if (data == null) continue;
 
-            if (data.type == ItemType.Artifact) {
+            if (data.getType() == ItemType.Artifact) {
                 player.getInventory().setItem(i,null);
                 count++;
             }

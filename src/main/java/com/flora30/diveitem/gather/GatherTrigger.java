@@ -1,5 +1,6 @@
 package com.flora30.diveitem.gather;
 
+import com.flora30.diveapin.ItemMain;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.mythic.DMythicUtil;
 import io.lumine.xikage.mythicmobs.MythicMobs;
@@ -17,7 +18,7 @@ public class GatherTrigger {
 
         Player player = event.getPlayer();
         Location location = event.getBlock().getLocation();
-        int itemId = ItemStackMain.getItemID(player.getInventory().getItemInMainHand());
+        int itemId = ItemMain.INSTANCE.getItemId(player.getInventory().getItemInMainHand());
         GatherMain.gather(player, location, itemId);
     }
 
@@ -61,10 +62,10 @@ public class GatherTrigger {
 
                 // オフハンド対応・どちらにも釣り竿が無い場合はキャンセル
                 if (mainHandItem.getType() == Material.FISHING_ROD) {
-                    itemId = ItemStackMain.getItemID(mainHandItem);
+                    itemId = ItemMain.INSTANCE.getItemId(mainHandItem);
                 }
                 else if (offHandItem.getType() == Material.FISHING_ROD) {
-                    itemId = ItemStackMain.getItemID(offHandItem);
+                    itemId = ItemMain.INSTANCE.getItemId(offHandItem);
                 }
                 else {
                     event.setCancelled(true);

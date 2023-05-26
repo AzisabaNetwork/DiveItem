@@ -1,13 +1,16 @@
 package com.flora30.diveitem.craft.gui;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.event.HelpEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.GuiItem;
-import com.flora30.diveapi.tools.HelpType;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.HelpEvent;
+import com.flora30.diveapin.event.HelpType;
+import com.flora30.diveapin.util.GuiItem;
 import com.flora30.diveitem.craft.CraftMain;
-import com.flora30.diveitem.craft.Recipe;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.divenew.data.recipe.Recipe;
+import com.flora30.divenew.data.recipe.RecipeObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,32 +32,32 @@ public class CraftListGUI {
         Bukkit.getPluginManager().callEvent(new HelpEvent(player, HelpType.CraftListGUI));
         List<Integer> recipeList = new ArrayList<>();
         // 作れるレシピを取得
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        recipeList.addAll(data.foundRecipeSet);
-        recipeList.addAll(data.completedRecipeSet);
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        recipeList.addAll(data.getFoundRecipeSet());
+        recipeList.addAll(data.getCompletedRecipeSet());
         // IDの昇順ソート
         Collections.sort(recipeList);
 
         Inventory gui = Bukkit.createInventory(null, 54, "クラフト一覧");
-        GuiItem.grayBack(gui);
+        GuiItem.INSTANCE.grayBack(gui);
 
         for (int i = 0; i < 28; i++) {
             // 最初の2つは0なので省く→レシピの表示が2つ消えたので省かない
             if (i >= recipeList.size()) break;
             gui.setItem(listRegion.get(i), getIcon(recipeList.get(i)));
         }
-        gui.setItem(4,GuiItem.getItem(Material.CRAFTING_TABLE));
-        gui.setItem(53, GuiItem.getReturn());
+        gui.setItem(4,GuiItem.INSTANCE.getItem(Material.CRAFTING_TABLE));
+        gui.setItem(53, GuiItem.INSTANCE.getReturn());
 
         return gui;
     }
 
     private static ItemStack getIcon(int recipeId) {
         //Bukkit.getLogger().info("表示RecipeID : "+recipeId);
-        if (!CraftMain.recipeMap.containsKey(recipeId)) return null;
-        Recipe recipe = CraftMain.recipeMap.get(recipeId);
+        if (!RecipeObject.INSTANCE.getRecipeMap().containsKey(recipeId)) return null;
+        Recipe recipe = RecipeObject.INSTANCE.getRecipeMap().get(recipeId);
 
-        ItemStack icon = ItemStackMain.getItem(recipeId);
+        ItemStack icon = ItemMain.INSTANCE.getItem(recipeId);
         if (icon == null || icon.getItemMeta() == null) return null;
         ItemMeta meta = icon.getItemMeta();
 
@@ -62,14 +65,14 @@ public class CraftListGUI {
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.add(ChatColor.GOLD + "＜ 必要な素材 ＞");
-        for (Recipe.ItemAmount ia : recipe.itemAmounts) {
-            ItemStack item = ItemStackMain.getItem(ia.itemId());
+        for (Recipe.ItemAmount ia : recipe.getItemAmounts()) {
+            ItemStack item = ItemMain.INSTANCE.getItem(ia.getItemId());
             if (item == null || item.getItemMeta() == null) continue;
-            lore.add(item.getItemMeta().getDisplayName() + ChatColor.GOLD + " ‣ "+ ChatColor.WHITE + ia.amount() + "個");
+            lore.add(item.getItemMeta().getDisplayName() + ChatColor.GOLD + " ‣ "+ ChatColor.WHITE + ia.getAmount() + "個");
         }
         meta.setLore(lore);
         icon.setItemMeta(meta);
-        icon.setAmount(recipe.amount);
+        icon.setAmount(recipe.getAmount());
 
         return icon;
     }
@@ -90,7 +93,7 @@ public class CraftListGUI {
         // クラフトGUIを開く
         ItemStack item = e.getClickedInventory().getItem(e.getSlot());
         if (item == null || item.getItemMeta() == null || item.getType() == Material.GRAY_STAINED_GLASS_PANE) return;
-        int recipeId = ItemStackMain.getItemID(item);
+        int recipeId = ItemMain.INSTANCE.getItemId(item);
         Inventory craftGui = CraftGUI.getGui(player, recipeId);
         assert craftGui != null;
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK,1, 1);
