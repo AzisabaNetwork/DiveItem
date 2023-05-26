@@ -1,6 +1,6 @@
 package com.flora30.diveitem.shop;
 
-import com.flora30.diveapi.tools.Config;
+import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

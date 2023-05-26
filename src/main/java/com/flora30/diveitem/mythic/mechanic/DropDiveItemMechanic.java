@@ -1,5 +1,6 @@
 package com.flora30.diveitem.mythic.mechanic;
 
+import com.flora30.diveapin.ItemEntityObject;
 import com.flora30.diveapin.ItemMain;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.ItemEntityMain;
@@ -33,9 +34,9 @@ public class DropDiveItemMechanic extends SkillMechanic implements ITargetedEnti
         //mobId判定
         UUID mobId = abstractEntity.getUniqueId();
 
-        if (ItemEntityMain.mobMap.containsKey(mobId)){
+        if (ItemEntityObject.INSTANCE.getMobMap().containsKey(mobId)){
             // mobを攻撃したプレイヤーSet
-            for (UUID playerId : ItemEntityMain.mobMap.get(mobId).playerIdSet) {
+            for (UUID playerId : ItemEntityObject.INSTANCE.getMobMap().get(mobId).getPlayerIdSet()) {
                 Player player = Bukkit.getPlayer(playerId);
                 if (player == null) continue;
 

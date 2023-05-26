@@ -2,6 +2,7 @@ package com.flora30.diveitem.mythic;
 
 import com.flora30.diveapin.data.player.PlayerData;
 import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.divenew.data.MythicObject;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MythicMain {
-    public static Set<String> mythicObjectives = new HashSet<>();
+    private static final Set<String> mythicObjectives = MythicObject.INSTANCE.getMythicObjectives();
 
     public static void scoreCheck(Player player){
         PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());

@@ -1,9 +1,9 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.event.HelpEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.HelpType;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.HelpEvent;
+import com.flora30.diveapin.event.HelpType;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;
@@ -32,8 +32,8 @@ public class UseStaminaMechanic  extends SkillMechanic implements ITargetedEntit
 
         Player player = (Player) data.getCaster().getEntity().getBukkitEntity();
         Bukkit.getPluginManager().callEvent(new HelpEvent(player, HelpType.UseStamina));
-        PlayerData pData = CoreAPI.getPlayerData(player.getUniqueId());
-        pData.currentST -= amount;
+        PlayerData pData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        pData.setCurrentST(pData.getCurrentST() - amount);
         return true;
     }
 }

@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.condition;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.SkillCondition;
@@ -24,26 +24,23 @@ public class DiveCdCondition extends SkillCondition implements IEntityCondition 
         if(!entity.isPlayer()){
             return false;
         }
-        PlayerData data = CoreAPI.getPlayerData(entity.getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(entity.getUniqueId());
         if (data == null){
             return false;
         }
 
-        if (data.coolDownMap.get(name) == null){
+        if (data.getCoolDownMap().get(name) == null){
             return false;
         }
 
         if (type == null){
-            return data.coolDownMap.get(name) == this.amount;
+            return data.getCoolDownMap().get(name) == this.amount;
         }
 
-        switch (type){
-            case "up":
-                return data.coolDownMap.get(name) > this.amount;
-            case "down":
-                return data.coolDownMap.get(name) < this.amount;
-            default:
-                return data.coolDownMap.get(name) == this.amount;
-        }
+        return switch (type) {
+            case "up" -> data.getCoolDownMap().get(name) > this.amount;
+            case "down" -> data.getCoolDownMap().get(name) < this.amount;
+            default -> data.getCoolDownMap().get(name) == this.amount;
+        };
     }
 }

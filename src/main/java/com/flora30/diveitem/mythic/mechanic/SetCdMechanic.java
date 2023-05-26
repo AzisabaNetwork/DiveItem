@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.INoTargetSkill;
 import io.lumine.xikage.mythicmobs.skills.SkillMechanic;
@@ -26,12 +26,12 @@ public class SetCdMechanic extends SkillMechanic implements INoTargetSkill {
             return false;
         }
 
-        PlayerData data = CoreAPI.getPlayerData(skillData.getCaster().getEntity().getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(skillData.getCaster().getEntity().getUniqueId());
         if (data == null){
             return false;
         }
 
-        Map<String,Integer> coolDownMap = data.coolDownMap;
+        Map<String,Integer> coolDownMap = data.getCoolDownMap();
         coolDownMap.put(name,amount);
         return true;
     }

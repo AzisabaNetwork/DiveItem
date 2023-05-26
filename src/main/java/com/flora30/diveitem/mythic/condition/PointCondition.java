@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.condition;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.SkillCondition;
@@ -22,18 +22,14 @@ public class PointCondition extends SkillCondition implements IEntityCondition {
         if(!entity.isPlayer()){
             return false;
         }
-        PlayerData data = CoreAPI.getPlayerData(entity.asPlayer().getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(entity.getUniqueId());
 
-        switch (skillPointType){
-            case 1:
-                return level <= data.levelData.pointLuc;
-            case 2:
-                return level <= data.levelData.pointInt;
-            case 3:
-                return level <= data.levelData.pointVit;
-            case 4:
-                return level <= data.levelData.pointAtk;
-        }
-        return false;
+        return switch (skillPointType) {
+            case 1 -> level <= data.getLevelData().getPointLuc();
+            case 2 -> level <= data.getLevelData().getPointInt();
+            case 3 -> level <= data.getLevelData().getPointVit();
+            case 4 -> level <= data.getLevelData().getPointAtk();
+            default -> false;
+        };
     }
 }

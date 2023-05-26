@@ -1,8 +1,8 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.data.Point;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.divenew.data.PointObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;
@@ -29,7 +29,7 @@ public class WeaponDamageMechanic extends SkillMechanic implements ITargetedEnti
             return false;
         }
 
-        PlayerData pData = CoreAPI.getPlayerData(data.getCaster().getEntity().getUniqueId());
+        PlayerData pData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(data.getCaster().getEntity().getUniqueId());
         double damage = applyPointRate(pData,preDamage);
         //ダメージが0である場合を除外
         if(damage == 0){
@@ -45,7 +45,7 @@ public class WeaponDamageMechanic extends SkillMechanic implements ITargetedEnti
     }
 
     private double applyPointRate(PlayerData data, double damage){
-        double rate = Point.convertAttack(data.levelData.pointAtk);
+        double rate = PointObject.INSTANCE.getAttackRate(data.getLevelData().getPointAtk());
         return damage * rate;
     }
 }

@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.condition;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.SkillCondition;
@@ -20,8 +20,8 @@ public class StaminaCondition extends SkillCondition implements IEntityCondition
         if(!entity.isPlayer()){
             return false;
         }
-        PlayerData data = CoreAPI.getPlayerData(entity.asPlayer().getUniqueId());
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(entity.getUniqueId());
 
-        return data.currentST >= stamina;
+        return data.getCurrentST() >= stamina;
     }
 }
