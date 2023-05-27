@@ -18,7 +18,6 @@ import com.flora30.diveitem.shop.gui.SelectGUI;
 import com.flora30.diveitem.shop.gui.SellGUI;
 import com.flora30.diveitem.trade.TradeGUI;
 import com.flora30.diveitem.trade.TradeMain;
-import com.flora30.diveitem.whistle.EnderChestGUI;
 import com.flora30.diveitem.whistle.WhistleGUI;
 import com.flora30.divenew.data.item.ItemData;
 import com.flora30.divenew.data.item.ItemDataObject;
@@ -111,7 +110,6 @@ public class Listeners implements Listener, CommandExecutor {
             case "ショップ - 売る" -> SellGUI.onClick(e);
             case "クラフト一覧" -> CraftListGUI.onClick(e);
             case "クラフト" -> CraftGUI.onClick(e);
-            case "エンダーチェスト" -> EnderChestGUI.onClick(e);
             case "笛ランク" -> WhistleGUI.onClick(e);
         }
         if(title.contains("クラフト（編集：")){
@@ -128,7 +126,6 @@ public class Listeners implements Listener, CommandExecutor {
         switch(title){
             case "ショップ - 売る" -> SellGUI.onClose(e);
             case "クラフト" -> CraftGUI.onClose(e);
-            case "エンダーチェスト" -> EnderChestGUI.onClose(e);
             case "笛ランク" -> WhistleGUI.onClose(e);
         }
         if(title.contains("宝箱")){

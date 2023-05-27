@@ -1,15 +1,17 @@
 package com.flora30.diveitem.whistle;
 
-import com.flora30.diveapi.data.Whistle;
-import com.flora30.diveapi.tools.Config;
-import com.flora30.diveapi.tools.WhistleType;
+import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
+import com.flora30.divenew.data.Whistle;
+import com.flora30.divenew.data.WhistleObject;
+import com.flora30.divenew.data.WhistleType;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.util.Map;
 
 public class WhistleConfig extends Config {
 
@@ -40,20 +42,23 @@ public class WhistleConfig extends Config {
             assert sec2 != null;
         }
 
+        Map<Integer,Whistle> whistleMap = WhistleObject.INSTANCE.getWhistleMap();
+
         for (int i = 0; i < limit; i++) {
-            Whistle whistle = new Whistle();
-            whistle.type = WhistleType.Red;
-            whistle.rank = 1;
-            whistle.enderCapacity = 0;
-            whistle.returnDepth = 0;
+            // 初期値
+            int rank = 1;
+            WhistleType type = WhistleType.Red;
+            int returnDepth = 0;
+            int enderCapacity = 0;
+
 
             // 前レベルから
-            if (WhistleMain.whistleMap.containsKey(i-1)) {
-                Whistle before = WhistleMain.whistleMap.get(i-1);
-                whistle.type = before.type;
-                whistle.rank = before.rank+1;
-                whistle.returnDepth = before.returnDepth;
-                whistle.enderCapacity = before.enderCapacity;
+            if (whistleMap.containsKey(i-1)) {
+                Whistle before = whistleMap.get(i-1);
+                type = before.getType();
+                rank = before.getRank()+1;
+                returnDepth = before.getReturnDepth();
+                enderCapacity = before.getEnderCapacity();
             }
 
             // configがある場合
@@ -61,14 +66,13 @@ public class WhistleConfig extends Config {
             if (secLv != null) {
                 // configの中身を足し算
                 if (secLv.contains("Type")) {
-                    whistle.type = WhistleType.valueOf(secLv.getString("Type"));
-                    whistle.rank = 1;
+                    type = WhistleType.valueOf(secLv.getString("Type"));
+                    rank = 1;
                 }
-                whistle.enderCapacity += secLv.getInt("EnderCapacity",0);
-                whistle.returnDepth += secLv.getInt("ReturnDepth",0);
+                enderCapacity += secLv.getInt("EnderCapacity",0);
+                returnDepth += secLv.getInt("ReturnDepth",0);
             }
-
-            WhistleMain.whistleMap.put(i,whistle);
+            whistleMap.put(i,new Whistle(rank,type,returnDepth,enderCapacity));
         }
 
         Bukkit.getLogger().info("[DiveItem-Whistle]笛ランクの読み込みが完了しました");
@@ -81,10 +85,10 @@ public class WhistleConfig extends Config {
 
     private void calcLvMap(double firstExp, double increaseRate, double plus, int limit){
         double current = firstExp;
-        WhistleMain.whistleExpMap.put(1, (int) firstExp);
+        WhistleObject.INSTANCE.getWhistleExpMap().put(1, (int) firstExp);
         for (int i = 2; i <= limit; i++){
             current = current * increaseRate + plus;
-            WhistleMain.whistleExpMap.put(i, (int) current);
+            WhistleObject.INSTANCE.getWhistleExpMap().put(i, (int) current);
         }
     }
 }

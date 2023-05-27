@@ -4,8 +4,8 @@ import com.flora30.diveapin.ItemMain;
 import com.flora30.diveapin.data.Rarity;
 import com.flora30.diveapin.event.GetItemEvent;
 import com.flora30.diveapin.event.SaveItemEvent;
+import com.flora30.diveapin.util.PlayerItem;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.diveitem.util.PlayerItem;
 import com.flora30.divenew.data.item.ItemData;
 import com.flora30.divenew.data.item.ItemDataObject;
 import com.flora30.divenew.data.item.ItemType;
@@ -29,7 +29,7 @@ public class ItemDataListener {
         ItemData data = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(e.getItem()));
         // 遺物価値
         if (data != null && data.getArtifactData() != null) {
-            e.setAdditionalValue(String.valueOf(PlayerItem.getInt(e.getItem(),artifactValueKey)));
+            e.setAdditionalValue(String.valueOf(PlayerItem.INSTANCE.getInt(e.getItem(),artifactValueKey)));
         }
     }
 

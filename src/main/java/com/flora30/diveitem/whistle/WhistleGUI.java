@@ -1,13 +1,14 @@
 package com.flora30.diveitem.whistle;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.data.Whistle;
-import com.flora30.diveapi.event.HelpEvent;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.GuiItem;
-import com.flora30.diveapi.tools.GuiItemType;
-import com.flora30.diveapi.tools.HelpType;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.event.HelpEvent;
+import com.flora30.diveapin.event.HelpType;
+import com.flora30.diveapin.util.GuiItem;
+import com.flora30.diveapin.util.GuiItemType;
+import com.flora30.diveapin.util.PlayerItem;
+import com.flora30.divenew.data.Whistle;
+import com.flora30.divenew.data.WhistleObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -30,7 +31,7 @@ public class WhistleGUI {
         Bukkit.getPluginManager().callEvent(new HelpEvent(player, HelpType.WhistleGUI));
 
         Inventory inv = Bukkit.createInventory(null,45,"笛ランク");
-        GuiItem.grayBack(inv);
+        GuiItem.INSTANCE.grayBack(inv);
 
         inv.setItem(4, getWhistleIcon(player));
         inv.setItem(sendPoint, getSendIcon());
@@ -61,19 +62,19 @@ public class WhistleGUI {
     }
 
     private static ItemStack getWhistleIcon(Player player) {
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        int exp = data.levelData.whistleExp;
-        int nextExp = WhistleMain.whistleExpMap.get(data.levelData.whistleRank + 1);
-        Whistle whistle = WhistleMain.whistleMap.get(data.levelData.whistleRank);
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        int exp = data.getLevelData().getWhistleExp();
+        int nextExp = WhistleObject.INSTANCE.getWhistleExpMap().get(data.getLevelData().getWhistleRank() + 1);
+        Whistle whistle = WhistleObject.INSTANCE.getWhistleMap().get(data.getLevelData().getWhistleRank());
 
         ItemStack item;
-        switch (whistle.type) {
-            case Red -> item = GuiItem.getItem(GuiItemType.WhistleRed);
-            case Blue -> item = GuiItem.getItem(GuiItemType.WhistleBlue);
-            case Moon -> item = GuiItem.getItem(GuiItemType.WhistleMoon);
-            case Black -> item = GuiItem.getItem(GuiItemType.WhistleBlack);
-            case White -> item = GuiItem.getItem(GuiItemType.WhistleWhite);
-            default -> throw new IllegalStateException("Unexpected value: " + whistle.type);
+        switch (whistle.getType()) {
+            case Red -> item = GuiItem.INSTANCE.getItem(GuiItemType.WhistleRed);
+            case Blue -> item = GuiItem.INSTANCE.getItem(GuiItemType.WhistleBlue);
+            case Moon -> item = GuiItem.INSTANCE.getItem(GuiItemType.WhistleMoon);
+            case Black -> item = GuiItem.INSTANCE.getItem(GuiItemType.WhistleBlack);
+            case White -> item = GuiItem.INSTANCE.getItem(GuiItemType.WhistleWhite);
+            default -> throw new IllegalStateException("Unexpected value: " + whistle.getType());
         }
 
         // 貢献値について
@@ -85,8 +86,8 @@ public class WhistleGUI {
 
         // 機能について
         lore.add("");
-        lore.add(ChatColor.GOLD + "帰還可能な深度 ‣ " + ChatColor.WHITE + whistle.returnDepth);
-        lore.add(ChatColor.GOLD + "エンダーチェストの容量 ‣ " + ChatColor.WHITE + whistle.enderCapacity);
+        lore.add(ChatColor.GOLD + "帰還可能な深度 ‣ " + ChatColor.WHITE + whistle.getReturnDepth());
+        lore.add(ChatColor.GOLD + "エンダーチェストの容量 ‣ " + ChatColor.WHITE + whistle.getEnderCapacity());
 
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
@@ -139,7 +140,7 @@ public class WhistleGUI {
     public static void onClose(InventoryCloseEvent e) {
         for (int slot : sendRegion) {
             if (e.getInventory().getItem(slot) != null) {
-                PlayerItem.giveItem((Player) e.getPlayer(), e.getInventory().getItem(slot));
+                PlayerItem.INSTANCE.giveItem((Player) e.getPlayer(), e.getInventory().getItem(slot));
             }
         }
     }
