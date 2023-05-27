@@ -1,6 +1,6 @@
 package com.flora30.diveitem.shop.gui;
 
-import com.flora30.diveapi.tools.GuiItem;
+import com.flora30.diveapin.util.GuiItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class SelectGUI {
     public static Inventory getGUI(int id){
         Inventory inv = Bukkit.createInventory(null,27,"ショップ - 何をしますか？");
-        GuiItem.grayBack(inv);
+        GuiItem.INSTANCE.grayBack(inv);
 
         inv.setItem(11,getIcon(Material.BARREL,ChatColor.WHITE+"購入する",id));
         inv.setItem(15,getIcon(Material.SUNFLOWER, ChatColor.WHITE+"売却する",0));

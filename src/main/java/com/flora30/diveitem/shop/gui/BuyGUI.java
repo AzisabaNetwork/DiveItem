@@ -1,12 +1,13 @@
 package com.flora30.diveitem.shop.gui;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.GuiItem;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.util.GuiItem;
+import com.flora30.diveapin.util.PlayerItem;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.diveitem.shop.ShopGood;
-import com.flora30.diveitem.shop.ShopMain;
+import com.flora30.divenew.data.ShopItem;
+import com.flora30.divenew.data.ShopObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,17 +21,17 @@ import java.util.List;
 public class BuyGUI {
     public static Inventory getGUI(Player player, int id){
         Inventory inv = Bukkit.createInventory(null,45,"ショップ - 買う");
-        GuiItem.grayBack(inv);
+        GuiItem.INSTANCE.grayBack(inv);
         inv.setItem(4,getIcon(Material.BARREL,ChatColor.WHITE+"商品をクリック ‣ 買う",id));
 
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        inv.setItem(5,getIcon(Material.GOLD_NUGGET,ChatColor.GOLD+"所持金 ‣ "+data.money+"G",0));
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        inv.setItem(5,getIcon(Material.GOLD_NUGGET,ChatColor.GOLD+"所持金 ‣ "+data.getMoney()+"G",0));
 
-        List<ShopGood> goodSet = ShopMain.shopMap.get(id).getGoodsList();
+        List<ShopItem> shopItems = ShopObject.INSTANCE.getShopMap().get(id);
 
         int i = 0;
-        for (ShopGood good : goodSet){
-            inv.setItem(getSlot(i), getGoodIcon(good));
+        for (ShopItem item : shopItems){
+            inv.setItem(getSlot(i), getGoodIcon(item));
             i++;
             if (i >= 21){
                 break;
@@ -65,16 +66,16 @@ public class BuyGUI {
         return meta.getCustomModelData();
     }
 
-    private static ItemStack getGoodIcon(ShopGood good){
-        ItemStack item = ItemStackMain.getItem(good.getItemId());
-        item.setAmount(good.getAmount());
+    private static ItemStack getGoodIcon(ShopItem shopItem){
+        ItemStack item = ItemMain.INSTANCE.getItem(shopItem.getItemId());
+        item.setAmount(shopItem.getAmount());
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
 
         List<String> lore = meta.getLore();
         assert lore != null;
         lore.add(0, ChatColor.GOLD +"――――――――――――");
-        lore.add(0,ChatColor.WHITE +"必要金額 ‣ "+ChatColor.GOLD+good.getMoney());
+        lore.add(0,ChatColor.WHITE +"必要金額 ‣ "+ChatColor.GOLD+shopItem.getMoney());
         lore.add(0, ChatColor.GOLD +"――――――――――――");
         meta.setLore(lore);
 
@@ -126,41 +127,41 @@ public class BuyGUI {
         }
 
         int i = 0;
-        ShopGood good = null;
+        ShopItem shopItem = null;
         //商品を検索
-        for (ShopGood insGood : ShopMain.shopMap.get(shopId).getGoodsList()){
+        for (ShopItem insItem : ShopObject.INSTANCE.getShopMap().get(shopId)){
             if (i != number){
                 i++;
                 continue;
             }
 
-            good = insGood;
+            shopItem = insItem;
             break;
         }
-        if (good == null){
+        if (shopItem == null){
             return;
         }
 
         //購入判定
-        buy(player,good);
+        buy(player,shopItem);
     }
 
-    public static void buy(Player player, ShopGood good){
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        int require = good.getMoney();
+    public static void buy(Player player, ShopItem shopItem){
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        int require = shopItem.getMoney();
 
-        if (data.money < require){
+        if (data.getMoney() < require){
             player.sendMessage(ChatColor.RED+"所持金が足りないようだ……");
             return;
         }
 
-        data.money = data.money - require;
-        player.getOpenInventory().getTopInventory().setItem(5,getIcon(Material.GOLD_NUGGET,ChatColor.GOLD+"所持金 ‣ "+data.money+"G",0));
+        data.setMoney(data.getMoney()-require);
+        player.getOpenInventory().getTopInventory().setItem(5,getIcon(Material.GOLD_NUGGET,ChatColor.GOLD+"所持金 ‣ "+data.getMoney()+"G",0));
 
         //アイテムを渡す
-        ItemStack item = ItemStackMain.getItem(good.getItemId());
-        item.setAmount(good.getAmount());
-        PlayerItem.giveItem(player,item);
+        ItemStack item = ItemMain.INSTANCE.getItem(shopItem.getItemId());
+        item.setAmount(shopItem.getAmount());
+        PlayerItem.INSTANCE.giveItem(player,item);
 
         ItemMeta meta = item.getItemMeta();
         assert meta != null;

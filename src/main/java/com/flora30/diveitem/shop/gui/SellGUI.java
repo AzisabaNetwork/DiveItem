@@ -1,11 +1,13 @@
 package com.flora30.diveitem.shop.gui;
 
-import com.flora30.diveapi.data.PlayerData;
-import com.flora30.diveapi.plugins.CoreAPI;
-import com.flora30.diveapi.tools.GuiItem;
-import com.flora30.diveapi.tools.PlayerItem;
+import com.flora30.diveapin.ItemMain;
+import com.flora30.diveapin.data.player.PlayerData;
+import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.diveapin.util.GuiItem;
+import com.flora30.diveapin.util.PlayerItem;
 import com.flora30.diveitem.item.data.ItemDataMain;
 import com.flora30.diveitem.item.ItemStackMain;
+import com.flora30.divenew.data.item.ItemDataObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,7 +24,7 @@ public class SellGUI {
 
     public static Inventory getGUI(){
         Inventory inv = Bukkit.createInventory(null,45,"ショップ - 売る");
-        GuiItem.grayBack(inv);
+        GuiItem.INSTANCE.grayBack(inv);
         inv.setItem(4,getIcon(Material.SUNFLOWER, ChatColor.WHITE+"緑色をクリック ‣ 売る",0));
 
         for (int i : getItemSlotList()){
@@ -102,13 +104,13 @@ public class SellGUI {
                 continue;
             }
             //売るアイテムのID
-            int id = ItemStackMain.getItemID(item);
+            int id = ItemMain.INSTANCE.getItemId(item);
             if (id == -1){
                 returnItem(player,inventory,slot);
                 continue;
             }
             //売るアイテムの金額
-            double money = ItemDataMain.getItemData(id).money;
+            double money = ItemDataObject.INSTANCE.getItemDataMap().get(id).getMoney();
             if (money == 0){
                 returnItem(player,inventory,slot);
                 continue;
@@ -121,8 +123,8 @@ public class SellGUI {
             inventory.setItem(slot,null);
         }
 
-        PlayerData data = CoreAPI.getPlayerData(player.getUniqueId());
-        data.money += total;
+        PlayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId());
+        data.setMoney(data.getMoney()+total);
 
         if (total != 0){
             player.playSound(player.getLocation(), Sound.BLOCK_CHAIN_BREAK, SoundCategory.PLAYERS,1,1);
@@ -131,7 +133,7 @@ public class SellGUI {
     }
 
     private static void returnItem(Player player, Inventory inventory, int slot){
-        PlayerItem.giveItem(player,inventory.getItem(slot));
+        PlayerItem.INSTANCE.giveItem(player,inventory.getItem(slot));
         inventory.setItem(slot,null);
     }
 

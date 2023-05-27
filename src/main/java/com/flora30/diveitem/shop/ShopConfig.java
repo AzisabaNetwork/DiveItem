@@ -2,6 +2,8 @@ package com.flora30.diveitem.shop;
 
 import com.flora30.diveapin.util.Config;
 import com.flora30.diveitem.DiveItem;
+import com.flora30.divenew.data.ShopItem;
+import com.flora30.divenew.data.ShopObject;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,11 +33,7 @@ public class ShopConfig extends Config {
                     Bukkit.getLogger().info("[DiveCore-Shop]「" + key + "」は数字ではありません");
                     continue;
                 }
-
-                Shop shop = new Shop();
-                shop.setGoodsList(getShopGoodList(file2.getStringList(key)));
-
-                ShopMain.shopMap.put(shopID,shop);
+                ShopObject.INSTANCE.getShopMap().put(shopID, getShopItemList(file2.getStringList(key)));
                 Bukkit.getLogger().info("[DiveCore-Shop]「" + shopID + "」をロードしました");
             }
         }
@@ -47,28 +45,22 @@ public class ShopConfig extends Config {
 
     }
 
-    private List<ShopGood> getShopGoodList (List<String> list){
-        List<ShopGood> shopGoodList = new ArrayList<>();
+    private List<ShopItem> getShopItemList(List<String> list){
+        List<ShopItem> shopItemList = new ArrayList<>();
         if (list == null){
-            return shopGoodList;
+            return shopItemList;
         }
         for (String str : list){
             String[] s = str.split(",");
-            int id, amount,money;
-            ShopGood good = new ShopGood();
             try{
-                id = Integer.parseInt(s[0]);
-                amount = Integer.parseInt(s[1]);
-                money = Integer.parseInt(s[2]);
-
-                good.setItemId(id);
-                good.setAmount(amount);
-                good.setMoney(money);
-            } catch (NumberFormatException e){
-                continue;
-            }
-            shopGoodList.add(good);
+                ShopItem shopItem = new ShopItem(
+                        Integer.parseInt(s[0]),
+                        Integer.parseInt(s[1]),
+                        Integer.parseInt(s[2])
+                );
+                shopItemList.add(shopItem);
+            } catch (NumberFormatException ignored){}
         }
-        return shopGoodList;
+        return shopItemList;
     }
 }
