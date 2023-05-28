@@ -1,16 +1,14 @@
 package com.flora30.diveitem.rope;
 
+import com.flora30.diveconstant.data.teleport.TeleportObject;
 import com.flora30.divelib.BlockLoc;
 import com.flora30.divelib.ItemMain;
 import com.flora30.divelib.data.Rope;
 import com.flora30.divelib.data.RopeObject;
-import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.event.HelpEvent;
 import com.flora30.divelib.event.HelpType;
 import com.flora30.divelib.util.PlayerItem;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.loot.LootMain;
 import com.flora30.diveitem.util.BlockUtil;
 import com.flora30.diveconstant.data.LayerObject;
@@ -74,12 +72,12 @@ public class RopeMain {
 
         String layerName = LayerObject.INSTANCE.getLayerName(firstLoc);
         if (firstLoc.getBlockY() < 60) {
-            org.bukkit.util.Vector vector = RegionAPI.getLayerVector(layerName, true);
+            org.bukkit.util.Vector vector = TeleportObject.INSTANCE.getLayerVector(layerName, true);
             if (vector != null) {
                 alterLocations.addAll(getLocations(player,firstLoc.clone().add(vector),ropeData));
             }
         } else if (firstLoc.getBlockY() > 220) {
-            org.bukkit.util.Vector vector = RegionAPI.getLayerVector(layerName, false);
+            org.bukkit.util.Vector vector = TeleportObject.INSTANCE.getLayerVector(layerName, false);
             if (vector != null) {
                 alterLocations.addAll(getLocations(player,firstLoc.clone().add(vector),ropeData));
             }

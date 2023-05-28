@@ -1,6 +1,7 @@
 package com.flora30.diveitem;
 
 import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.data.MenuSlot;
 import com.flora30.divelib.event.*;
 import com.flora30.diveitem.craft.gui.CraftGUI;
 import com.flora30.diveitem.craft.gui.CraftListGUI;
@@ -22,8 +23,10 @@ import com.flora30.diveitem.whistle.WhistleGUI;
 import com.flora30.diveconstant.data.item.ItemData;
 import com.flora30.diveconstant.data.item.ItemDataObject;
 import com.flora30.diveconstant.data.item.ItemType;
+import com.flora30.divelib.util.GuiItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -42,6 +45,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -298,6 +302,22 @@ public class Listeners implements Listener, CommandExecutor {
     public void onDamageByEntity(EntityDamageByEntityEvent e){
         ItemEntityMain.onAttackMob(e);
     }
+
+    @EventHandler
+    public void onMenuOpen(MenuOpenEvent e){
+        ItemStack icon = new ItemStack(Material.CRAFTING_TABLE);
+        ItemMeta meta = icon.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD+"クラフトをする");
+        icon.setItemMeta(meta);
+        e.getIconMap().put(MenuSlot.Slot2,icon);
+    }
+    @EventHandler
+    public void onMenuClick(MenuClickEvent e){
+        if (e.getSlot() == MenuSlot.Slot2){
+            e.getPlayer().openInventory(CraftListGUI.getGui(e.getPlayer()));
+        }
+    }
+
 
     public static int gatherSendTick = 5;
     public static int ropeTick = 5;

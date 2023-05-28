@@ -1,5 +1,7 @@
 package com.flora30.diveitem.item.data;
 
+import com.flora30.diveconstant.data.Layer;
+import com.flora30.diveconstant.data.LayerObject;
 import com.flora30.divelib.ItemMain;
 import com.flora30.divelib.data.Rarity;
 import com.flora30.divelib.event.GetItemEvent;
@@ -121,9 +123,9 @@ public class ItemDataListener {
         lore.add("");
         ///////////////////
         //エリア名
-        Story story = QuestAPI.getStory(data.getArea());
-        if (story != null && story.displayName != null) {
-            lore.add(ChatColor.GOLD + "入手階層 ‣ " + ChatColor.WHITE + QuestAPI.getStory(data.getArea()).displayName);
+        Layer layer = LayerObject.INSTANCE.getLayerMap().get(data.getArea());
+        if (layer != null) {
+            lore.add(ChatColor.GOLD + "入手階層 ‣ " + ChatColor.WHITE + layer.getDisplayName());
         }
 
         //食事
@@ -169,25 +171,18 @@ public class ItemDataListener {
 
     private static String convertDisplayType(ItemType type){
         try{
-            switch (type){
-                case Food:
-                    return "食べ物";
-                case Armor:
-                    return "防具";
-                case Other:
-                    return "その他";
-                case Supply:
-                    return "店売り品";
-                case Artifact:
-                    return "遺物";
-                case Material:
-                    return "素材";
-            }
+            return switch (type) {
+                case Food -> "食べ物";
+                case Armor -> "防具";
+                case Other -> "その他";
+                case Supply -> "店売り品";
+                case Artifact -> "遺物";
+                case Material -> "素材";
+            };
         } catch (IllegalArgumentException e){
             Bukkit.getLogger().info("[DiveCore-Item]種類が不正です - "+type);
             return null;
         }
-        return  null;
     }
 
     private static void checkAdd(List<String> list, String str, String check){

@@ -2,6 +2,7 @@ package com.flora30.diveitem.whistle;
 
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.event.AddExpEvent;
 import com.flora30.divelib.event.HelpEvent;
 import com.flora30.divelib.event.HelpType;
 import com.flora30.divelib.util.GuiItem;
@@ -130,7 +131,7 @@ public class WhistleGUI {
             e.getWhoClicked().sendMessage("貢献値が " +ChatColor.GOLD+ exp + ChatColor.WHITE + " 増加しました");
             WhistleMain.addWhistleExp((Player) e.getWhoClicked(),exp);
             // 経験値もあげる
-            CoreAPI.addExp((Player) e.getWhoClicked(), exp * 5);
+            Bukkit.getPluginManager().callEvent(new AddExpEvent((Player) e.getWhoClicked(), exp * 5));
 
             // GUI更新
             e.getClickedInventory().setItem(4, getWhistleIcon((Player) e.getWhoClicked()));

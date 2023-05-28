@@ -5,6 +5,7 @@ import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.divelib.event.HelpEvent;
 import com.flora30.divelib.event.HelpType;
+import com.flora30.divelib.event.MenuOpenEvent;
 import com.flora30.divelib.util.GuiItem;
 import com.flora30.diveitem.craft.CraftMain;
 import com.flora30.diveitem.item.ItemStackMain;
@@ -23,6 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class CraftListGUI {
@@ -85,7 +87,7 @@ public class CraftListGUI {
         if (!listRegion.contains(e.getSlot())) {
             if (e.getSlot() == 53) {
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK,1, 1);
-                CoreAPI.openMenu((Player) e.getWhoClicked());
+                Bukkit.getPluginManager().callEvent(new MenuOpenEvent((Player) e.getWhoClicked(),new HashMap<>()));
             }
             return;
         }

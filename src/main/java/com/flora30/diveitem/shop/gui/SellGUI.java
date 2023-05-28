@@ -5,8 +5,6 @@ import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.divelib.util.GuiItem;
 import com.flora30.divelib.util.PlayerItem;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveconstant.data.item.ItemDataObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;

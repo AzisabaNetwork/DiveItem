@@ -5,6 +5,8 @@ import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveconstant.data.LevelObject;
+import com.flora30.divelib.event.AddExpEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,7 +21,7 @@ public class CraftMain {
     // できなければ経験値を追加
     public static void onUseRecipeBook(Player player, int recipeId, int anotherExp) {
         if (!learnRecipe(player,recipeId)) {
-            CoreAPI.addExp(player,anotherExp);
+            Bukkit.getPluginManager().callEvent(new AddExpEvent(player,anotherExp));
         }
     }
     public static boolean learnRecipe(Player player, int recipeId) {
