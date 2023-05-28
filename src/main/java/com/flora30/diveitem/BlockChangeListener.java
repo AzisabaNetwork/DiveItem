@@ -7,15 +7,15 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.flora30.diveapin.DiveAPIN;
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.divelib.DiveLib;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.diveitem.loot.LootMain;
 import com.flora30.diveitem.rope.RopeMain;
 import com.flora30.diveitem.util.BlockUtil;
-import com.flora30.divenew.data.LayerObject;
-import com.flora30.divenew.data.loot.Loot;
-import com.flora30.divenew.data.loot.LootObject;
+import com.flora30.diveconstant.data.LayerObject;
+import com.flora30.diveconstant.data.loot.Loot;
+import com.flora30.diveconstant.data.loot.LootObject;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,7 +25,7 @@ import java.util.ConcurrentModificationException;
 public class BlockChangeListener extends PacketAdapter {
 
     public BlockChangeListener() {
-        super(DiveAPIN.plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.BLOCK_CHANGE);
+        super(DiveLib.plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.BLOCK_CHANGE);
     }
 
     @Override

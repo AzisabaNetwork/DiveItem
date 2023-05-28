@@ -1,6 +1,6 @@
 package com.flora30.diveitem.gather;
 
-import com.flora30.diveapin.ItemMain;
+import com.flora30.divelib.ItemMain;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.mythic.DMythicUtil;
 import io.lumine.xikage.mythicmobs.MythicMobs;

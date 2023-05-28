@@ -1,10 +1,10 @@
 package com.flora30.diveitem.whistle;
 
-import com.flora30.diveapin.data.player.LevelData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.diveapin.util.PlayerItem;
-import com.flora30.divenew.data.Whistle;
-import com.flora30.divenew.data.WhistleObject;
+import com.flora30.divelib.data.player.LevelData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.util.PlayerItem;
+import com.flora30.diveconstant.data.Whistle;
+import com.flora30.diveconstant.data.WhistleObject;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

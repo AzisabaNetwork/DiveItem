@@ -1,13 +1,13 @@
 package com.flora30.diveitem.loot;
 
-import com.flora30.diveapin.data.Rarity;
-import com.flora30.diveapin.util.Config;
+import com.flora30.divelib.data.Rarity;
+import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.divenew.data.item.ItemDataObject;
-import com.flora30.divenew.data.loot.Loot;
-import com.flora30.divenew.data.loot.LootLevel;
-import com.flora30.divenew.data.loot.LootLocation;
-import com.flora30.divenew.data.loot.LootObject;
+import com.flora30.diveconstant.data.item.ItemDataObject;
+import com.flora30.diveconstant.data.loot.Loot;
+import com.flora30.diveconstant.data.loot.LootLevel;
+import com.flora30.diveconstant.data.loot.LootLocation;
+import com.flora30.diveconstant.data.loot.LootObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;

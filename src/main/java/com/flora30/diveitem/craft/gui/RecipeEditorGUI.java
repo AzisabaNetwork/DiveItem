@@ -1,13 +1,13 @@
 package com.flora30.diveitem.craft.gui;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.util.GuiItem;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.util.GuiItem;
 import com.flora30.diveitem.craft.CraftConfig;
 import com.flora30.diveitem.craft.CraftMain;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.divenew.data.recipe.HideType;
-import com.flora30.divenew.data.recipe.Recipe;
-import com.flora30.divenew.data.recipe.RecipeObject;
+import com.flora30.diveconstant.data.recipe.HideType;
+import com.flora30.diveconstant.data.recipe.Recipe;
+import com.flora30.diveconstant.data.recipe.RecipeObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

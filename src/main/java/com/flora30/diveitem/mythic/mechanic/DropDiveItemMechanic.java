@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapin.ItemEntityObject;
-import com.flora30.diveapin.ItemMain;
+import com.flora30.divelib.ItemEntityObject;
+import com.flora30.divelib.ItemMain;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.ItemEntityMain;
 import com.flora30.diveitem.item.ItemStackMain;

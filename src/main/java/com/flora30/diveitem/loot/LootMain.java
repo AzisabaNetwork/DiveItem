@@ -1,17 +1,17 @@
 package com.flora30.diveitem.loot;
 
-import com.flora30.diveapin.BlockLoc;
-import com.flora30.diveapin.data.player.LayerData;
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.diveapin.util.Mathing;
+import com.flora30.divelib.BlockLoc;
+import com.flora30.divelib.data.player.LayerData;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.util.Mathing;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.loot.gui.LootGUI;
-import com.flora30.divenew.data.LayerObject;
-import com.flora30.divenew.data.loot.Loot;
-import com.flora30.divenew.data.loot.LootLevel;
-import com.flora30.divenew.data.loot.LootLocation;
-import com.flora30.divenew.data.loot.LootObject;
+import com.flora30.diveconstant.data.LayerObject;
+import com.flora30.diveconstant.data.loot.Loot;
+import com.flora30.diveconstant.data.loot.LootLevel;
+import com.flora30.diveconstant.data.loot.LootLocation;
+import com.flora30.diveconstant.data.loot.LootObject;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;

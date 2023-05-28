@@ -1,9 +1,9 @@
 package com.flora30.diveitem.shop;
 
-import com.flora30.diveapin.util.Config;
+import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.divenew.data.ShopItem;
-import com.flora30.divenew.data.ShopObject;
+import com.flora30.diveconstant.data.ShopItem;
+import com.flora30.diveconstant.data.ShopObject;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

@@ -1,15 +1,15 @@
 package com.flora30.diveitem.loot.gui;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.data.player.LevelData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.diveapin.event.HelpEvent;
-import com.flora30.diveapin.event.HelpType;
-import com.flora30.divenew.data.PointObject;
-import com.flora30.divenew.data.item.ItemData;
-import com.flora30.divenew.data.item.ItemDataObject;
-import com.flora30.divenew.data.loot.Loot;
-import com.flora30.divenew.data.loot.LootObject;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.data.player.LevelData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.event.HelpEvent;
+import com.flora30.divelib.event.HelpType;
+import com.flora30.diveconstant.data.PointObject;
+import com.flora30.diveconstant.data.item.ItemData;
+import com.flora30.diveconstant.data.item.ItemDataObject;
+import com.flora30.diveconstant.data.loot.Loot;
+import com.flora30.diveconstant.data.loot.LootObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

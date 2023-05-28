@@ -1,6 +1,6 @@
 package com.flora30.diveitem.shop.gui;
 
-import com.flora30.diveapin.util.GuiItem;
+import com.flora30.divelib.util.GuiItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

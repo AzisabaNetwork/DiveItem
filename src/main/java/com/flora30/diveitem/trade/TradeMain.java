@@ -1,11 +1,11 @@
 package com.flora30.diveitem.trade;
 
-import com.flora30.diveapin.data.TradeData;
-import com.flora30.diveapin.data.TradeObject;
-import com.flora30.diveapin.data.TradePhase;
-import com.flora30.diveapin.event.HelpEvent;
-import com.flora30.diveapin.event.HelpType;
-import com.flora30.diveapin.util.PlayerItem;
+import com.flora30.divelib.data.TradeData;
+import com.flora30.divelib.data.TradeObject;
+import com.flora30.divelib.data.TradePhase;
+import com.flora30.divelib.event.HelpEvent;
+import com.flora30.divelib.event.HelpType;
+import com.flora30.divelib.util.PlayerItem;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

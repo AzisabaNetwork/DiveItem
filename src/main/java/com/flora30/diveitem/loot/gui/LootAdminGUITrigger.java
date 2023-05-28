@@ -1,11 +1,11 @@
 package com.flora30.diveitem.loot.gui;
 
-import com.flora30.diveapin.ItemMain;
+import com.flora30.divelib.ItemMain;
 import com.flora30.diveitem.item.ItemStackMain;
 import com.flora30.diveitem.loot.LootConfig;
 import com.flora30.diveitem.loot.LootMain;
-import com.flora30.divenew.data.loot.Loot;
-import com.flora30.divenew.data.loot.LootObject;
+import com.flora30.diveconstant.data.loot.Loot;
+import com.flora30.diveconstant.data.loot.LootObject;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;

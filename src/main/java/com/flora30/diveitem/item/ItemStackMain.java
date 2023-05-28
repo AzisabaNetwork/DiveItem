@@ -1,7 +1,7 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.event.CreateItemEvent;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.event.CreateItemEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 

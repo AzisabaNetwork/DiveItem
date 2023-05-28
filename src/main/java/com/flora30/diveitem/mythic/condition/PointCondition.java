@@ -1,7 +1,7 @@
 package com.flora30.diveitem.mythic.condition;
 
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.SkillCondition;

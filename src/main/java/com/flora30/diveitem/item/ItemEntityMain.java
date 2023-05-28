@@ -1,15 +1,15 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapin.ItemEntityData;
-import com.flora30.diveapin.ItemEntityObject;
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.MobEntityData;
-import com.flora30.diveapin.data.Rarity;
-import com.flora30.diveapin.event.PutItemEntityEvent;
+import com.flora30.divelib.ItemEntityData;
+import com.flora30.divelib.ItemEntityObject;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.MobEntityData;
+import com.flora30.divelib.data.Rarity;
+import com.flora30.divelib.event.PutItemEntityEvent;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.divenew.data.item.ItemData;
-import com.flora30.divenew.data.item.ItemDataObject;
+import com.flora30.diveconstant.data.item.ItemData;
+import com.flora30.diveconstant.data.item.ItemDataObject;
 import net.minecraft.server.level.WorldServer;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -25,7 +25,7 @@ import java.util.*;
 
 public class ItemEntityMain {
 
-    // DiveAPINのクラスを引用
+    // DiveLibのクラスを引用
     private static final Map<Item,ItemEntityData> itemEntityMap = ItemEntityObject.INSTANCE.getItemEntityMap();
     private static final Map<UUID,MobEntityData> mobMap = ItemEntityObject.INSTANCE.getMobMap();
     private static final Set<Item> freeItems = ItemEntityObject.INSTANCE.getFreeItemSet();

@@ -1,9 +1,9 @@
 package com.flora30.diveitem;
 
 import com.comphenix.protocol.ProtocolLibrary;
-import com.flora30.diveapin.DiveAPIN;
-import com.flora30.diveapin.ItemEntityObject;
-import com.flora30.diveapin.data.Rarity;
+import com.flora30.divelib.DiveLib;
+import com.flora30.divelib.ItemEntityObject;
+import com.flora30.divelib.data.Rarity;
 import com.flora30.diveitem.craft.CraftConfig;
 import com.flora30.diveitem.item.data.ItemDataConfig;
 import com.flora30.diveitem.gather.GatherConfig;
@@ -108,14 +108,14 @@ public final class DiveItem extends JavaPlugin {
     public void loadConfig() {
         // 何も必要ない
         new ItemDataConfig().load();
-        DiveAPIN.plugin.setItemDataReady(true);
+        DiveLib.plugin.setItemDataReady(true);
 
         // 何も必要ない
         new WhistleConfig().load();
 
         // ItemData が必要
         new ItemConfig().load();
-        DiveAPIN.plugin.setItemStackReady(true);
+        DiveLib.plugin.setItemStackReady(true);
 
         // Item が必要
         CraftConfig.load();

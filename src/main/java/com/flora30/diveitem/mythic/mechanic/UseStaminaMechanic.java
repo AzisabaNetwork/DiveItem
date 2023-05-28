@@ -1,9 +1,9 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.diveapin.event.HelpEvent;
-import com.flora30.diveapin.event.HelpType;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.event.HelpEvent;
+import com.flora30.divelib.event.HelpType;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;

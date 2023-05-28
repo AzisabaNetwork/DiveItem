@@ -1,7 +1,7 @@
 package com.flora30.diveitem;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.event.*;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.event.*;
 import com.flora30.diveitem.craft.gui.CraftGUI;
 import com.flora30.diveitem.craft.gui.CraftListGUI;
 import com.flora30.diveitem.craft.gui.RecipeEditorGUI;
@@ -19,9 +19,9 @@ import com.flora30.diveitem.shop.gui.SellGUI;
 import com.flora30.diveitem.trade.TradeGUI;
 import com.flora30.diveitem.trade.TradeMain;
 import com.flora30.diveitem.whistle.WhistleGUI;
-import com.flora30.divenew.data.item.ItemData;
-import com.flora30.divenew.data.item.ItemDataObject;
-import com.flora30.divenew.data.item.ItemType;
+import com.flora30.diveconstant.data.item.ItemData;
+import com.flora30.diveconstant.data.item.ItemDataObject;
+import com.flora30.diveconstant.data.item.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

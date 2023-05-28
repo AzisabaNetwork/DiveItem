@@ -1,13 +1,13 @@
 package com.flora30.diveitem.shop.gui;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.diveapin.util.GuiItem;
-import com.flora30.diveapin.util.PlayerItem;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.util.GuiItem;
+import com.flora30.divelib.util.PlayerItem;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.divenew.data.ShopItem;
-import com.flora30.divenew.data.ShopObject;
+import com.flora30.diveconstant.data.ShopItem;
+import com.flora30.diveconstant.data.ShopObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;

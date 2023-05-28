@@ -1,8 +1,8 @@
 package com.flora30.diveitem.mythic.mechanic;
 
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.divenew.data.PointObject;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.diveconstant.data.PointObject;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;

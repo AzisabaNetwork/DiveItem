@@ -1,7 +1,7 @@
 package com.flora30.diveitem.rope;
 
-import com.flora30.diveapin.data.RopeObject;
-import com.flora30.diveapin.util.Config;
+import com.flora30.divelib.data.RopeObject;
+import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

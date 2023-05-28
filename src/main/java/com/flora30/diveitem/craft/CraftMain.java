@@ -1,10 +1,10 @@
 package com.flora30.diveitem.craft;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.divenew.data.LevelObject;
+import com.flora30.diveconstant.data.LevelObject;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

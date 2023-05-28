@@ -1,14 +1,14 @@
 package com.flora30.diveitem.item.data;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.data.Rarity;
-import com.flora30.diveapin.event.GetItemEvent;
-import com.flora30.diveapin.event.SaveItemEvent;
-import com.flora30.diveapin.util.PlayerItem;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.data.Rarity;
+import com.flora30.divelib.event.GetItemEvent;
+import com.flora30.divelib.event.SaveItemEvent;
+import com.flora30.divelib.util.PlayerItem;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.divenew.data.item.ItemData;
-import com.flora30.divenew.data.item.ItemDataObject;
-import com.flora30.divenew.data.item.ItemType;
+import com.flora30.diveconstant.data.item.ItemData;
+import com.flora30.diveconstant.data.item.ItemDataObject;
+import com.flora30.diveconstant.data.item.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

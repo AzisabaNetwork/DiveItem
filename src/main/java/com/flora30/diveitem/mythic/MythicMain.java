@@ -1,8 +1,8 @@
 package com.flora30.diveitem.mythic;
 
-import com.flora30.diveapin.data.player.PlayerData;
-import com.flora30.diveapin.data.player.PlayerDataObject;
-import com.flora30.divenew.data.MythicObject;
+import com.flora30.divelib.data.player.PlayerData;
+import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.diveconstant.data.MythicObject;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;

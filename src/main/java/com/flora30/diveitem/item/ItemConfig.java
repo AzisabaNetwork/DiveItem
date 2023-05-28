@@ -1,7 +1,7 @@
 package com.flora30.diveitem.item;
 
-import com.flora30.diveapin.ItemMain;
-import com.flora30.diveapin.util.Config;
+import com.flora30.divelib.ItemMain;
+import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.io.MythicConfig;

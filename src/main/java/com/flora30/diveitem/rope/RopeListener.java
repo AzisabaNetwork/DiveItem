@@ -1,8 +1,8 @@
 package com.flora30.diveitem.rope;
 
-import com.flora30.diveapin.BlockLoc;
-import com.flora30.diveapin.data.Rope;
-import com.flora30.diveapin.data.RopeObject;
+import com.flora30.divelib.BlockLoc;
+import com.flora30.divelib.data.Rope;
+import com.flora30.divelib.data.RopeObject;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
