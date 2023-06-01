@@ -4,7 +4,7 @@ import com.flora30.divelib.ItemMain;
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.diveitem.item.ItemStackMain;
-import com.flora30.diveconstant.data.LevelObject;
+import com.flora30.divelib.data.LevelObject;
 import com.flora30.divelib.event.AddExpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

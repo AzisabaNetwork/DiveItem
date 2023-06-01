@@ -4,14 +4,14 @@ import com.flora30.divelib.BlockLoc;
 import com.flora30.divelib.data.player.LayerData;
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
+import com.flora30.divelib.gui.LootGUI;
 import com.flora30.divelib.util.Mathing;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveitem.loot.gui.LootGUI;
-import com.flora30.diveconstant.data.LayerObject;
-import com.flora30.diveconstant.data.loot.Loot;
-import com.flora30.diveconstant.data.loot.LootLevel;
-import com.flora30.diveconstant.data.loot.LootLocation;
-import com.flora30.diveconstant.data.loot.LootObject;
+import com.flora30.divelib.data.LayerObject;
+import com.flora30.divelib.data.loot.Loot;
+import com.flora30.divelib.data.loot.LootLevel;
+import com.flora30.divelib.data.loot.LootLocation;
+import com.flora30.divelib.data.loot.LootObject;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -20,7 +20,6 @@ import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class LootMain {
 
@@ -197,7 +196,7 @@ public class LootMain {
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN,1,1);
 
         //宝箱GUIを表示
-        LootGUI.open(player, LootObject.INSTANCE.getLootMap().get(data.getLootLayer()), data.getLootMap().get(id));
+        LootGUI.INSTANCE.open(player, LootObject.INSTANCE.getLootMap().get(data.getLootLayer()), data.getLootMap().get(id));
     }
 
     public static void sendChest(Player player){

@@ -3,7 +3,7 @@ package com.flora30.diveitem.item.data;
 import com.flora30.divelib.data.Rarity;
 import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveconstant.data.item.*;
+import com.flora30.divelib.data.item.*;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.io.MythicConfig;
 import io.lumine.xikage.mythicmobs.items.MythicItem;

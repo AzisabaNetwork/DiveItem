@@ -2,7 +2,7 @@ package com.flora30.diveitem.mythic;
 
 import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveconstant.data.MythicObject;
+import com.flora30.divelib.data.MythicObject;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

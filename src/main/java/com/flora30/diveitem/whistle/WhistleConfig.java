@@ -2,9 +2,9 @@ package com.flora30.diveitem.whistle;
 
 import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveconstant.data.Whistle;
-import com.flora30.diveconstant.data.WhistleObject;
-import com.flora30.diveconstant.data.WhistleType;
+import com.flora30.divelib.data.Whistle;
+import com.flora30.divelib.data.WhistleObject;
+import com.flora30.divelib.data.WhistleType;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

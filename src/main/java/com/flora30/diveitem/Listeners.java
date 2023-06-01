@@ -19,11 +19,10 @@ import com.flora30.diveitem.shop.gui.SelectGUI;
 import com.flora30.diveitem.shop.gui.SellGUI;
 import com.flora30.diveitem.trade.TradeGUI;
 import com.flora30.diveitem.trade.TradeMain;
-import com.flora30.diveitem.whistle.WhistleGUI;
-import com.flora30.diveconstant.data.item.ItemData;
-import com.flora30.diveconstant.data.item.ItemDataObject;
-import com.flora30.diveconstant.data.item.ItemType;
-import com.flora30.divelib.util.GuiItem;
+import com.flora30.diveitem.whistle.WhistleGUITrigger;
+import com.flora30.divelib.data.item.ItemData;
+import com.flora30.divelib.data.item.ItemDataObject;
+import com.flora30.divelib.data.item.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -114,7 +113,7 @@ public class Listeners implements Listener, CommandExecutor {
             case "ショップ - 売る" -> SellGUI.onClick(e);
             case "クラフト一覧" -> CraftListGUI.onClick(e);
             case "クラフト" -> CraftGUI.onClick(e);
-            case "笛ランク" -> WhistleGUI.onClick(e);
+            case "笛ランク" -> WhistleGUITrigger.onClick(e);
         }
         if(title.contains("クラフト（編集：")){
             RecipeEditorGUI.onClick(e);
@@ -130,7 +129,7 @@ public class Listeners implements Listener, CommandExecutor {
         switch(title){
             case "ショップ - 売る" -> SellGUI.onClose(e);
             case "クラフト" -> CraftGUI.onClose(e);
-            case "笛ランク" -> WhistleGUI.onClose(e);
+            case "笛ランク" -> WhistleGUITrigger.onClose(e);
         }
         if(title.contains("宝箱")){
             LootTrigger.onInventoryClose(e);

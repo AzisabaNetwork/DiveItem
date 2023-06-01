@@ -1,6 +1,6 @@
 package com.flora30.diveitem.rope;
 
-import com.flora30.diveconstant.data.teleport.TeleportObject;
+import com.flora30.divelib.data.teleport.TeleportObject;
 import com.flora30.divelib.BlockLoc;
 import com.flora30.divelib.ItemMain;
 import com.flora30.divelib.data.Rope;
@@ -11,10 +11,10 @@ import com.flora30.divelib.util.PlayerItem;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.diveitem.loot.LootMain;
 import com.flora30.diveitem.util.BlockUtil;
-import com.flora30.diveconstant.data.LayerObject;
-import com.flora30.diveconstant.data.item.ItemData;
-import com.flora30.diveconstant.data.item.ItemDataObject;
-import com.flora30.diveconstant.data.item.RopeData;
+import com.flora30.divelib.data.LayerObject;
+import com.flora30.divelib.data.item.ItemData;
+import com.flora30.divelib.data.item.ItemDataObject;
+import com.flora30.divelib.data.item.RopeData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
