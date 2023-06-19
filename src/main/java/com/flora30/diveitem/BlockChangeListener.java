@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.flora30.divelib.BlockLoc;
 import com.flora30.divelib.DiveLib;
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
@@ -14,7 +15,6 @@ import com.flora30.diveitem.loot.LootMain;
 import com.flora30.diveitem.rope.RopeMain;
 import com.flora30.diveitem.util.BlockUtil;
 import com.flora30.divelib.data.LayerObject;
-import com.flora30.divelib.data.loot.Loot;
 import com.flora30.divelib.data.loot.LootObject;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -56,20 +56,19 @@ public class BlockChangeListener extends PacketAdapter {
                 String lootLayer = LayerObject.INSTANCE.getLayerName(event.getPlayer().getLocation());
                 if (!pData.getLayerData().getLootLayer().equals(lootLayer)) return;
 
-                Loot loot = LootObject.INSTANCE.getLootMap().get(lootLayer);
-
                 // 例外が出たら（途中で変更があった）やり直し
                 while(true) {
                     try {
                         // 現在のエリアにあるlootの最大より多いID（その場合LootLocが取れない）があれば消す
-                        pData.getLayerData().getLootMap().entrySet().removeIf(i -> loot.getLootLoc(i.getKey()) == null);
+                        // IDではなくLocationで取り扱うようになったので、その可能性はないはず？
+                        //pData.getLayerData().getLootMap().entrySet().removeIf(i -> pData.getLayerData().isLootLocation(new BlockLoc(i.getKey())));
 
-                        for (int lootId : pData.getLayerData().getLootMap().keySet()) {
+                        for (Location lootLoc : pData.getLayerData().getLootMap().keySet()) {
                             // 右クリックじゃないタイミング（テレポート直後）で送られたときは？ -> 距離判定を入れてごまかす
                             if (event.getPlayer().getLocation().distance(location) > 5) {
                                 continue;
                             }
-                            if (loot.getLootLoc(lootId).getLocation().distance(location) == 0) {
+                            if (lootLoc.distance(location) == 0) {
 
                                 if(event.getPlayer().getGameMode() == GameMode.CREATIVE && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STONE_AXE) {
                                     LootMain.unregisterChest(event.getPlayer(),location);
@@ -84,7 +83,7 @@ public class BlockChangeListener extends PacketAdapter {
                                 //Bukkit.getLogger().info("loot_open -> material = " + data.getType());
 
                                 event.setCancelled(true);
-                                LootMain.openChest(event.getPlayer(), loot.getLootLoc(lootId).getLocation());
+                                LootMain.openChest(event.getPlayer(), lootLoc);
                                 return;
                             }
                         }

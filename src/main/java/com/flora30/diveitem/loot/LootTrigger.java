@@ -1,12 +1,15 @@
 package com.flora30.diveitem.loot;
 
 import com.flora30.divelib.BlockLoc;
+import com.flora30.divelib.data.gimmick.action.ChestType;
+import com.flora30.divelib.data.player.LayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.divelib.event.LayerChangeEvent;
 import com.flora30.diveitem.loot.gui.LootAdminGUI;
 import com.flora30.divelib.data.LayerObject;
 import com.flora30.divelib.data.loot.LootObject;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -45,43 +48,48 @@ public class LootTrigger {
 
     public static void onInventoryClose(InventoryCloseEvent e){
         //チェストを削除
-        int id = PlayerDataObject.INSTANCE.getPlayerDataMap().get(e.getPlayer().getUniqueId()).getLayerData().getOpenLootLocID();
-        LootMain.closeChest((Player) e.getPlayer(),id);
+        Location loc = PlayerDataObject.INSTANCE.getPlayerDataMap().get(e.getPlayer().getUniqueId()).getLayerData().getOpenLootLoc();
+        LootMain.closeChest((Player) e.getPlayer(),loc);
     }
 
     public static void onCommand(Player player, String subCommand, String sub2, String sub3){
         if (subCommand.equals("register")){
-            LootMain.registerChest(player);
+            // LootMain.registerChest(player);
         }
         if (subCommand.equals("admin")){
             try{
-                int level = Integer.parseInt(sub3);
-                LootAdminGUI.open(player, sub2, level);
-            } catch (NumberFormatException e){
-                player.sendMessage("loot admin [layer] [lv]");
+                LootAdminGUI.open(player, sub2);
+            } catch (IllegalArgumentException e){
+                player.sendMessage("loot admin [lootID]");
             }
         }
         if (subCommand.equals("respawn")){
-            LootMain.executeRandomSpawn(player,player.getLocation());
-            player.sendMessage("ルートチェストを再生成しました");
+            //LootMain.executeRandomSpawn(player,player.getLocation());
+            player.sendMessage("ルートチェストの再生成は deprecated されています");
         }
 
     }
 
     public static void onPlace(BlockPlaceEvent e){
+        /*
         if (e.getBlockPlaced().getType() == Material.CHEST){
             LootMain.registerChest(e.getPlayer(),e.getBlockPlaced().getLocation());
         }
+         */
     }
 
     // BlockChangeListenerへ移動
     public static void onBreak(BlockBreakEvent event){
+        /* deprecated
         if (event.getBlock().getType() == Material.CHEST){
             LootMain.unregisterChest(event.getPlayer(), event.getBlock().getLocation());
         }
+
+         */
     }
 
     public static void onLayerChange(LayerChangeEvent event){
+        /* deprecated
         Player player = Bukkit.getPlayer(event.getUuid());
         if(player == null) return;
 
@@ -92,6 +100,7 @@ public class LootTrigger {
         if (!groupName.equals(lootLayer)){
             LootMain.executeRandomSpawn(player, player.getLocation());
         }
+         */
     }
 
     public static void onTickSendChest(Player player){
@@ -119,32 +128,34 @@ public class LootTrigger {
                 return;
             }
 
+            LayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getPlayer().getUniqueId()).getLayerData();
+
             // ルートチェストの上に乗っている（下9ブロックをチェック）
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, 1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, 1)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, 0)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, 0)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, -1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(1, -0.5, -1)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, 1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, 1)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, 0)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, 0)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, -1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(0, -0.5, -1)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, 1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, 1)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, 0)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, 0)))){
                 event.setCancelled(true);
             }
-            if (LootObject.INSTANCE.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, -1)))){
+            if (data.isLootLocation(new BlockLoc(event.getPlayer().getLocation().add(-1, -0.5, -1)))){
                 event.setCancelled(true);
             }
         }

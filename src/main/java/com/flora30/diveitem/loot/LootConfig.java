@@ -4,7 +4,6 @@ import com.flora30.divelib.data.Rarity;
 import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.divelib.data.item.ItemDataObject;
-import com.flora30.divelib.data.loot.Loot;
 import com.flora30.divelib.data.loot.LootLevel;
 import com.flora30.divelib.data.loot.LootLocation;
 import com.flora30.divelib.data.loot.LootObject;
@@ -18,6 +17,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,8 +61,7 @@ public class LootConfig extends Config {
                     titlePlus,
                     chestSlot,
                     percent,
-                    pType,
-                    material
+                    pType
             );
             LootObject.INSTANCE.getLootLevelList().add(lootLevel);
         }
@@ -70,7 +69,7 @@ public class LootConfig extends Config {
         //失敗時アイテム
         int fAmount = loadOrDefault("loot",config,"failed.amount",1);
         int fID = loadOrDefault("loot",config,"failed.itemID",1);
-        Loot.ItemAmount failed = new Loot.ItemAmount(fID,fAmount);
+        LootObject.ItemAmount failed = new LootObject.ItemAmount(fID,fAmount);
         LootObject.INSTANCE.setFailedLoot(failed);
 
         // レアリティに応じたドロップ率
@@ -85,64 +84,42 @@ public class LootConfig extends Config {
         //lootフォルダ内のファイルを検索
         for(File separated : lootFiles) {
             FileConfiguration file2 = YamlConfiguration.loadConfiguration(separated);
-            for (String layerID : file2.getKeys(false)) {
+            for (String lootID : file2.getKeys(false)) {
                 /* layerの読み込みが遅いので判定不可
                 if (!RegionAPI.isLayerID(layerID)) {
                     Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」は存在しません");
                     continue;
                 }
                  */
-                ConfigurationSection sec2 = file2.getConfigurationSection(layerID);
+                ConfigurationSection sec2 = file2.getConfigurationSection(lootID);
 
                 assert sec2 != null;
                 int amount = sec2.getInt("amount");
 
-                //lootの新規作成
-                Loot loot = new Loot();
-
                 //報酬の読み込み
-                for (int i = 1; i <= 3; i++) {
-                    List<String> list = sec2.getStringList("loot.Lv" + i);
+                List<String> list = sec2.getStringList("loot." + lootID);
 
-                    //報酬リストの新規作成
-                    ArrayList<Loot.ItemAmount> itemList = new ArrayList<>();
+                //報酬リストの新規作成
+                ArrayList<LootObject.ItemAmount> itemList = new ArrayList<>();
 
-                    for (String str : list) {
-                        String[] split = str.split(",");
-                        int lootItemID, lootAmount;
-                        try {
-                            lootItemID = Integer.parseInt(split[0]);
-                            lootAmount = Integer.parseInt(split[1]);
-                        } catch (NumberFormatException e) {
-                            Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」の報酬Lv." + i + "「ID-" + split[0] + "」の読み込みに失敗しました");
-                            continue;
-                        }
-
-                        //報酬の新規作成
-                        itemList.add(new Loot.ItemAmount(lootItemID, lootAmount));
+                for (String str : list) {
+                    String[] split = str.split(",");
+                    int lootItemID, lootAmount;
+                    try {
+                        lootItemID = Integer.parseInt(split[0]);
+                        lootAmount = Integer.parseInt(split[1]);
+                    } catch (NumberFormatException e) {
+                        Bukkit.getLogger().info("[DiveItem-Loot]「" + lootID + "」の報酬「ID-" + split[0] + "」の読み込みに失敗しました");
+                        continue;
                     }
 
-                    //Lv.iの報酬リストとして設定
-                    loot.getItemList().set(i,itemList);
+                    //報酬の新規作成
+                    itemList.add(new LootObject.ItemAmount(lootItemID, lootAmount));
                 }
 
-                //LootLocationの読み込み
-                if (!sec2.isList("locationList")){
-                    Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」の座標読み込みに失敗しました");
-                }
-                else{
-                    for (String line : sec2.getStringList("locationList")){
-                        LootLocation loc = readLootLoc(line);
-                        if (loc == null){
-                            continue;
-                        }
-                        loot.getLocationList().add(loc);
-                    }
-                }
-
-                LootObject.INSTANCE.getLootMap().put(layerID,loot);
-                LootObject.INSTANCE.getAmountMap().put(layerID,amount);
-                Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」のルートチェストを読み込みました");
+                //報酬リストとして設定
+                LootObject.INSTANCE.getLootItemMap().put(lootID,itemList);
+                Bukkit.getLogger().info("[DiveItem-Loot]「" + lootID + "」のルートチェストを読み込みました");
             }
         }
         Bukkit.getLogger().info("[DiveItem-Loot]ルートチェストの読み込みが完了しました");
@@ -174,21 +151,21 @@ public class LootConfig extends Config {
     }
 
 
-    public void save(String layerID){
+    public void save(String lootID){
         //既存にあればそこに保存
         for(File separated : lootFiles) {
             FileConfiguration file2 = YamlConfiguration.loadConfiguration(separated);
-            if (layerID.equals(file2.getKeys(false).toString())) {
+            if (lootID.equals(file2.getKeys(false).toString())) {
                 //一致したとき
-                save(layerID,YamlConfiguration.loadConfiguration(separated), separated);
-                Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」を保存しました");
+                save(lootID,YamlConfiguration.loadConfiguration(separated), separated);
+                Bukkit.getLogger().info("[DiveItem-Loot]「" + lootID + "」を保存しました");
                 return;
             }
         }
         //無ければファイルを新規作成（layerIDが名前のyml）
-        File file = new File(getMyFolder().getAbsolutePath() + File.separator + "loot","loot_"+layerID+".yml");
-        save(layerID,YamlConfiguration.loadConfiguration(file), file);
-        Bukkit.getLogger().info("[DiveItem-Loot]エリア「" + layerID + "」を新規保存しました");
+        File file = new File(getMyFolder().getAbsolutePath() + File.separator + "loot","loot_"+lootID+".yml");
+        save(lootID,YamlConfiguration.loadConfiguration(file), file);
+        Bukkit.getLogger().info("[DiveItem-Loot]「" + lootID + "」を新規保存しました");
     }
     
     private File getMyFolder(){
@@ -200,44 +177,31 @@ public class LootConfig extends Config {
 
     }
 
-    private void save(String layerID, FileConfiguration file, File saveTo){
-        Loot loot = LootObject.INSTANCE.getLootMap().get(layerID);
-        if (!file.isConfigurationSection(layerID)) {
-            file.createSection(layerID);
+    private void save(String lootID, FileConfiguration file, File saveTo){
+        List<LootObject.ItemAmount> lootList = LootObject.INSTANCE.getLootItemMap().get(lootID);
+        if (!file.isConfigurationSection(lootID)) {
+            file.createSection(lootID);
         }
-        ConfigurationSection sec1 = file.getConfigurationSection(layerID);
+        ConfigurationSection sec1 = file.getConfigurationSection(lootID);
         assert sec1 != null;
 
-        checkAndWrite(sec1,"amount", LootObject.INSTANCE.getAmountMap().get(layerID));
-
-        //報酬
-        for(int i = 1; i <= loot.getItemList().size(); i++) {
-            Bukkit.getLogger().info("i = "+i+" ( max = "+loot.getItemList().size());
-            //報酬リストを作成
-            List<String> list = new ArrayList<>();
-            for (Loot.ItemAmount ia : loot.getItemList().get(i)) {
-                String goodString = ia.getItemId() + "," + ia.getAmount();
-                list.add(goodString);
-            }
-            checkAndWrite(sec1, "loot.Lv" + i, list);
+        //報酬リストを作成
+        List<String> list = new ArrayList<>();
+        for(LootObject.ItemAmount ia : lootList) {
+            String goodString = ia.getItemId() + "," + ia.getAmount();
+            list.add(goodString);
         }
-
-        //Location
-        List<String> lootLocList = new ArrayList<>();
-        for(int i = 1; i <= loot.getLocationList().size(); i++){
-            lootLocList.add(composeLootLoc(loot.getLootLoc(i-1)));
-        }
-        checkAndWrite(sec1,"locationList",lootLocList);
+        checkAndWrite(sec1, "loot."+lootID, list);
 
         try{
             file.save(saveTo);
         } catch (IOException e){
-            Bukkit.getLogger().info("[DiveItem-Loot]エリア「"+layerID+"」のルートチェストの保存に失敗しました");
+            Bukkit.getLogger().info("[DiveItem-Loot]「"+lootID+"」のルートチェストの保存に失敗しました");
             e.printStackTrace();
             return;
         }
 
-        Bukkit.getLogger().info("[DiveItem-Loot]エリア「"+layerID+"」のルートチェストを保存しました");
+        Bukkit.getLogger().info("[DiveItem-Loot]「"+lootID+"」のルートチェストを保存しました");
     }
 
     private String composeLootLoc(LootLocation loc){

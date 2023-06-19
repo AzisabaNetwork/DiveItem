@@ -1,29 +1,33 @@
 package com.flora30.diveitem.loot;
 
 import com.flora30.divelib.BlockLoc;
+import com.flora30.divelib.data.Layer;
 import com.flora30.divelib.data.player.LayerData;
+import com.flora30.divelib.data.player.LootData;
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
 import com.flora30.divelib.gui.LootGUI;
 import com.flora30.divelib.util.Mathing;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.divelib.data.LayerObject;
-import com.flora30.divelib.data.loot.Loot;
 import com.flora30.divelib.data.loot.LootLevel;
 import com.flora30.divelib.data.loot.LootLocation;
 import com.flora30.divelib.data.loot.LootObject;
 import org.bukkit.*;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
 public class LootMain {
 
+    /**
+     * @deprecated 場所を登録する必要が無くなったため
+     */
+    @Deprecated
     public static void registerChest(Player player){
+        /*
         String layer = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData().getLayer();
         Loot loot = LootObject.INSTANCE.getLootMap().get(layer);
         if (loot == null){
@@ -58,15 +62,22 @@ public class LootMain {
 
         lootLoc.getLocation().getBlock().setType(Material.AIR);
         PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData().getLootMap().put(loot.getLocationList().size()-1,getRandomLootLevel());
+
+         */
     }
 
+    /**
+     * @deprecated 場所を登録する必要が無くなったため
+     */
+    @Deprecated
     public static void registerChest(Player player, Location placed){
+        /*
+
         String layer = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData().getLayer();
         Loot loot = LootObject.INSTANCE.getLootMap().get(layer);
         if (loot == null){
             loot = new Loot();
             LootObject.INSTANCE.getLootMap().put(layer,loot);
-            LootObject.INSTANCE.getAmountMap().put(layer,3);
             Bukkit.getLogger().info("[DiveCore-Loot]新規登録 - "+layer);
         }
         if (placed.getBlock().getType() != Material.CHEST){
@@ -92,9 +103,16 @@ public class LootMain {
 
         lootLoc.getLocation().getBlock().setType(Material.AIR);
         PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData().getLootMap().put(loot.getLocationList().size()-1,getRandomLootLevel());
+
+         */
     }
 
+    /**
+     * @deprecated 座標の登録が必要なくなったため
+     */
+    @Deprecated
     public static void unregisterChest(Player player, Location location){
+        /*
         String layer = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData().getLayer();
         Loot loot = LootObject.INSTANCE.getLootMap().get(layer);
         //Bukkit.getLogger().info("比較："+location.getX()+","+location.getY()+","+location.getZ());
@@ -111,9 +129,15 @@ public class LootMain {
             }
         }
         player.sendMessage("ルートチェストの削除に失敗しました[layer = "+ layer+"]");
+         */
     }
 
+    /**
+     * @deprecated 座標の生成はギミックで行う
+     */
+    @Deprecated
     public static void executeRandomSpawn(Player player, Location location){
+        /*
         LayerData layerData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData();
         //送られた場所の階層を判定
         String layerName = LayerObject.INSTANCE.getLayerMap().get(LayerObject.INSTANCE.getLayerName(location)).getGroupName();
@@ -167,6 +191,7 @@ public class LootMain {
         //player.sendMessage( QuestAPI.getStory(layerName).displayName+"にチェストを配置しました");
         Bukkit.getLogger().info("("+player.getDisplayName()+","+LayerObject.INSTANCE.getLayerName(location)+") -> チェスト配置 (lv1 - "+countLv1+") " +
                         "(Lv2 - " + countLv2 + ") (Lv3 - " + countLv3 +")");
+         */
     }
 
     public static void openChest(Player player, Location location){
@@ -176,13 +201,14 @@ public class LootMain {
         if (data.getLootLayer() == null){
             Bukkit.getLogger().info("[DiveItem-Loot]layer＝なし");
             return;
-        } else if (LootObject.INSTANCE.getLootMap().get(data.getLootLayer()) == null) {
+        }
+        Layer layer = LayerObject.INSTANCE.getLayerMap().get(LayerObject.INSTANCE.getLayerName(location));
+        if (layer == null) {
             Bukkit.getLogger().info("[DiveItem-Loot]layer「"+data.getLootLayer()+"」にLootが設定されていません");
             return;
         }
-        int id = LootObject.INSTANCE.getLootMap().get(data.getLootLayer()).getID(location);
         //playerDataの座標に無い場合はエラー
-        if(!data.getLootMap().containsKey(id)){
+        if(!data.getLootMap().containsKey(location)){
             //音
             player.playSound(player.getLocation(), Sound.BLOCK_CHEST_LOCKED,1,1);
             player.sendMessage("チェストの中は空のようだ・・・");
@@ -190,13 +216,15 @@ public class LootMain {
         }
 
         //座標を登録
-        data.setOpenLootLocID(id);
+        data.setOpenLootLoc(location);
         //Bukkit.getLogger().info(player.getDisplayName()+"のチェストを開く - "+id);
         //音
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN,1,1);
 
+        LootData lootData = data.getLootMap().get(location);
+
         //宝箱GUIを表示
-        LootGUI.INSTANCE.open(player, LootObject.INSTANCE.getLootMap().get(data.getLootLayer()), data.getLootMap().get(id));
+        LootGUI.INSTANCE.open(player, layer, lootData.getType(), lootData.getLevel());
     }
 
     public static void sendChest(Player player){
@@ -204,61 +232,40 @@ public class LootMain {
         if (pData == null) return;
 
         LayerData data = pData.getLayerData();
-        Loot loot = LootObject.INSTANCE.getLootMap().get(data.getLootLayer());
-        //loot未設定
-        if (loot == null){
-            Bukkit.getLogger().info("[DiveCore-Loot]loot未設定 - "+data.getLootLayer());
-            return;
-        }
-
-        Location playerLoc = player.getLocation();
         //座標で回す
-        for(int i : data.getLootMap().keySet()){
-            DiveItem.plugin.asyncTask(() -> sendChestAsync(player,data,loot,playerLoc,i));
+        for(Map.Entry<Location, LootData> entry : data.getLootMap().entrySet()){
+            DiveItem.plugin.asyncTask(() -> sendChestAsync(player,entry.getKey(),entry.getValue()));
         }
     }
 
-    public static void sendChestAsync(Player player, LayerData data, Loot loot, Location playerLoc, int i){
-        LootLocation lootLoc = loot.getLootLoc(i);
-        if (lootLoc == null){
-            Bukkit.getLogger().info(("[DiveCore-Loot]存在しないチェストID["+data.getLayer()+" - "+i+"]を持っています - "+player.getDisplayName()));
-            return;
-        }
-        if(lootLoc.getLocation().getWorld() != playerLoc.getWorld()) return;
-
-        Location location = lootLoc.getLocation();
+    public static void sendChestAsync(Player player, Location location, LootData data){
         LootLevel lootLevel;
         try{
             // lootが削除されたタイミングと被ったらNullPointerExceptionになる→削除後なのでチェストは送らない
-            lootLevel = LootObject.INSTANCE.getLootLevelList().get(data.getLootMap().get(i) - 1);
+            lootLevel = LootObject.INSTANCE.getLootLevelList().get(data.getLevel());
         } catch (NullPointerException e) { return; }
 
-        // 向きの設定
-        BlockData blockData = lootLevel.getMaterial().createBlockData();
-        if (blockData instanceof Directional directional) {
-            directional.setFacing(lootLoc.getFace());
-        }
+        // ブロック種類の設定
+        BlockData blockData = LootObject.INSTANCE.getDisplayList().get(data.getType()).createBlockData();
 
         player.sendBlockChange(location, blockData);
         //Bukkit.getLogger().info("[DiveCore-Loot]チェストの設置を確認 - "+i);
         //近場にパーティクル
-        if(location.distance(playerLoc) <= LootObject.INSTANCE.getParticleDistance()){
+        if(player.getLocation().distance(location) <= LootObject.INSTANCE.getParticleDistance()){
             Location particleLoc = location.clone().add(0.5,0.5,0.5);
             player.spawnParticle(lootLevel.getParticle(),particleLoc,LootObject.INSTANCE.getParticleCount(),LootObject.INSTANCE.getParticleRange(),LootObject.INSTANCE.getParticleRange(),LootObject.INSTANCE.getParticleRange(),0.05);
         }
     }
 
-    public static void removeChest(Player player, int id){
+    public static void removeChest(Player player, Location location){
         LayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData();
-        data.getLootMap().remove(id);
+        data.getLootMap().remove(location);
         //Bukkit.getLogger().info(player.getDisplayName()+"のチェストを削除しました - "+id);
     }
 
-    public static void closeChest(Player player, int id){
+    public static void closeChest(Player player, Location location){
         //Bukkit.getLogger().info("loot close");
         LayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(player.getUniqueId()).getLayerData();
-        Loot loot = LootObject.INSTANCE.getLootMap().get(data.getLootLayer());
-        Location location = loot.getLootLoc(id).getLocation();
         double pRange = 1.0;
         //演出
         player.playSound(location,Sound.BLOCK_CHEST_CLOSE,1,1);
@@ -267,7 +274,7 @@ public class LootMain {
             player.sendBlockChange(location, Material.AIR.createBlockData());
             player.spawnParticle(Particle.BLOCK_CRACK, location,10,pRange,pRange,pRange,Bukkit.createBlockData(Material.CHEST));
         });
-        removeChest(player,id);
+        removeChest(player,location);
 
         //高さ-5以上のチェストを吹き飛ばす -- 一時削除
         /*
@@ -299,9 +306,11 @@ public class LootMain {
     }
 
     /**
+     * @deprecated 通れる場所のみにギミック生成するため
      * 起動時にルートチェストの座標にあるサーバー側のブロックをAirにする
      * チェストが無い場合にAirに見えるため、プレイヤーが通行できるようにする
      */
+    @Deprecated
     public static void sendAllAir(){
         if (!LootObject.INSTANCE.getFillAir()) return;
 
@@ -310,6 +319,7 @@ public class LootMain {
         int count = 1;
         long time = System.currentTimeMillis();
 
+        /*
         for (Loot loot : LootObject.INSTANCE.getLootMap().values()){
             for (LootLocation loc : loot.getLocationList()){
                 if (loc.getLocation().getBlock().getType() != Material.AIR) {
@@ -322,6 +332,7 @@ public class LootMain {
                 }
             }
         }
+         */
     }
 
     /**
@@ -332,8 +343,6 @@ public class LootMain {
         if (data == null) return false;
 
         String layer = LayerObject.INSTANCE.getLayerName(location);
-        Loot loot = LootObject.INSTANCE.getLootMap().get(layer);
-        if (loot == null) return false;
 
         // Block座標を使うためBlockLocに変換
         BlockLoc blockLoc = new BlockLoc(location);
@@ -341,8 +350,8 @@ public class LootMain {
         // 原因不明のエラーを回避（最大IDより1多いIDが出る）
         try{
             // プレイヤーの持っているチェストを検索
-            for (int id : data.getLayerData().getLootMap().keySet()) {
-                LootLocation lootLoc = loot.getLocationList().get(id);
+            for (Map.Entry<Location, LootData> entry : data.getLayerData().getLootMap().entrySet()) {
+                Location lootLoc = entry.getKey();
                 if (blockLoc.getX() == lootLoc.getBlockX() &&
                         blockLoc.getY() == lootLoc.getBlockY() &&
                         blockLoc.getZ() == lootLoc.getBlockZ()) return true;

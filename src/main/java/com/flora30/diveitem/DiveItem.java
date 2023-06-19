@@ -61,7 +61,7 @@ public final class DiveItem extends JavaPlugin {
 
         loadConfig();
 
-        LootMain.sendAllAir();
+        //LootMain.sendAllAir();
 
         onTimer();
 

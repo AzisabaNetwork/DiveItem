@@ -6,6 +6,7 @@
 
 plugins {
     id 'java-library'
+    id 'com.github.johnrengelman.shadow' version "8.1.1"
     id 'maven-publish'
 }
 
@@ -44,7 +45,7 @@ repositories {
 dependencies {
     compileOnly 'org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'io.lumine:Mythic-Dist:5.0.0-SNAPSHOT'
-    compileOnly 'com.ticxo.modelengine:api:R2.5.0'
+    compileOnly 'com.ticxo.modelengine:api:R3.1.5'
     compileOnly 'net.citizensnpcs:citizensapi:2.0.28-SNAPSHOT'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
     compileOnly "com.flora30:DiveLib:0.1.0-SNAPSHOT"
