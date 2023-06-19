@@ -7,10 +7,20 @@ import com.flora30.divelib.MobEntityData;
 import com.flora30.divelib.data.Rarity;
 import com.flora30.divelib.event.PutItemEntityEvent;
 import com.flora30.diveitem.DiveItem;
-import com.flora30.diveitem.item.data.ItemDataMain;
-import com.flora30.diveconstant.data.item.ItemData;
-import com.flora30.diveconstant.data.item.ItemDataObject;
+import com.flora30.divelib.data.item.ItemData;
+import com.flora30.divelib.data.item.ItemDataObject;
+import com.flora30.divelib.util.PlayerItem;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.WorldServer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -257,7 +267,7 @@ public class ItemEntityMain {
         else {
             // 取得時
             player.playSound(player.getLocation(),Sound.ENTITY_ITEM_PICKUP,1,1);
-            PlayerItem.giveItem(player,((Item)entity.getBukkitEntity()).getItemStack());
+            PlayerItem.INSTANCE.giveItem(player,((Item)entity.getBukkitEntity()).getItemStack());
 
             // エンティティを削除するパケット
             ClientboundRemoveEntitiesPacket removePacket = new ClientboundRemoveEntitiesPacket(entity.getId());
@@ -269,10 +279,10 @@ public class ItemEntityMain {
 
     public static net.minecraft.world.entity.Entity spawnPacketItem(Player player, ItemStack item, Location loc) {
         // レアリティ
-        Rarity rarity = ItemDataMain.getItemData(ItemStackMain.getItemID(item)).rarity;
+        Rarity rarity = ItemDataObject.INSTANCE.getItemDataMap().get(ItemMain.INSTANCE.getItemId(item)).getRarity();
         //Bukkit.getLogger().info("mmDrop: rarity = "+rarity.toString());
 
-        WorldServer serverWorld = ((CraftWorld)player.getWorld()).getHandle();
+        ServerLevel serverWorld = ((CraftWorld)player.getWorld()).getHandle();
         // ServerWorld、座標xyz、ItemStack（＋動きxyz）
 
 
@@ -301,7 +311,7 @@ public class ItemEntityMain {
     // サーバー停止時にアマスタの紐づけ消去
     public static void removeArmorstands(){
         for (ItemEntityData data : itemEntityMap.values()) {
-            Entity armorstand = Bukkit.getEntity(data.armorStandId);
+            Entity armorstand = Bukkit.getEntity(data.getArmorStandID());
             if (armorstand != null) {
                 armorstand.remove();
             }
