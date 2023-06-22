@@ -1,6 +1,7 @@
 package com.flora30.diveitem.loot;
 
 import com.flora30.divelib.data.Rarity;
+import com.flora30.divelib.data.gimmick.action.ChestType;
 import com.flora30.divelib.util.Config;
 import com.flora30.diveitem.DiveItem;
 import com.flora30.divelib.data.item.ItemDataObject;
@@ -50,6 +51,8 @@ public class LootConfig extends Config {
         if(config.getConfigurationSection("lootlevel") == null){
             config.createSection("lootlevel");
         }
+        LootObject.INSTANCE.getLootLevelList().add(new LootLevel());
+        Bukkit.getLogger().info("LootLevel size -> "+LootObject.INSTANCE.getLootLevelList().size());
         for(String key : Objects.requireNonNull(config.getConfigurationSection("lootlevel")).getKeys(false)){
             String titlePlus = loadOrDefault("loot",config,"lootlevel."+key+".titlePlus","Lv.0");
             int chestSlot = loadOrDefault("loot", config,"lootlevel."+key+".chestSlot",9);
@@ -64,6 +67,7 @@ public class LootConfig extends Config {
                     pType
             );
             LootObject.INSTANCE.getLootLevelList().add(lootLevel);
+            Bukkit.getLogger().info("LootLevel size -> "+LootObject.INSTANCE.getLootLevelList().size());
         }
 
         //失敗時アイテム
@@ -75,6 +79,15 @@ public class LootConfig extends Config {
         // レアリティに応じたドロップ率
         for (Rarity rarity: Rarity.values()){
             ItemDataObject.INSTANCE.getDropRateMap().put(rarity,config.getDouble("rarity."+rarity.toString().toLowerCase(),1));
+        }
+
+        // ChestTypeごとの表示ブロック
+        for (String typeStr : config.getConfigurationSection("chestType").getKeys(false)){
+            try {
+                ChestType type = ChestType.valueOf(typeStr);
+                Material material = Material.valueOf(config.getString("chestType."+typeStr));
+                LootObject.INSTANCE.getDisplayList().put(type,material);
+            } catch (IllegalArgumentException ignored){}
         }
 
 
@@ -91,13 +104,8 @@ public class LootConfig extends Config {
                     continue;
                 }
                  */
-                ConfigurationSection sec2 = file2.getConfigurationSection(lootID);
-
-                assert sec2 != null;
-                int amount = sec2.getInt("amount");
-
                 //報酬の読み込み
-                List<String> list = sec2.getStringList("loot." + lootID);
+                List<String> list = file2.getStringList(lootID);
 
                 //報酬リストの新規作成
                 ArrayList<LootObject.ItemAmount> itemList = new ArrayList<>();
