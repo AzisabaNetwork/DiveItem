@@ -16,7 +16,6 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -242,6 +241,7 @@ public class ItemEntityMain {
     }
 
     public static void moveToPlayer(Player player, net.minecraft.world.entity.Entity entity, Rarity rarity, int count) {
+
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ServerGamePacketListenerImpl packetSender = serverPlayer.connection;
         Vec3 entityPos = entity.position();
