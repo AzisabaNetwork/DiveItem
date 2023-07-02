@@ -61,6 +61,11 @@ public class MythicListener implements Listener {
                 e.register(skill);
                 Bukkit.getLogger().info("[DiveItem-Mythic]ownerWeaponDMを登録");
             }
+            case "CORPSELOOT" -> {
+                SkillMechanic skill = new CorpseLootMechanic(e.getContainer().getConfigLine(), e.getConfig());
+                e.register(skill);
+                Bukkit.getLogger().info("[DiveItem-Mythic]corpseLootを登録");
+            }
         }
     }
 
