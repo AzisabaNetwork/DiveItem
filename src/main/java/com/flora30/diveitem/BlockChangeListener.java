@@ -7,7 +7,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.flora30.divelib.BlockLoc;
 import com.flora30.divelib.DiveLib;
 import com.flora30.divelib.data.player.PlayerData;
 import com.flora30.divelib.data.player.PlayerDataObject;
@@ -15,7 +14,6 @@ import com.flora30.diveitem.loot.LootMain;
 import com.flora30.diveitem.rope.RopeMain;
 import com.flora30.diveitem.util.BlockUtil;
 import com.flora30.divelib.data.LayerObject;
-import com.flora30.divelib.data.loot.LootObject;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,52 +43,13 @@ public class BlockChangeListener extends PacketAdapter {
             }
              */
 
+            Location location = position.toLocation(event.getPlayer().getWorld());
 
-            // Loot用
-            // 光ブロック → air の時も取得するけど無視で
-            if (data.getType() == Material.AIR || data.getType() == Material.WATER) {
-                Location location = position.toLocation(event.getPlayer().getWorld());
-                PlayerData pData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getPlayer().getUniqueId());
-                if (pData == null) return;
+            // 元のブロックに変更された場合
+            if (data.getType() == location.getBlock().getType()) {
+                // Loot用
+                checkLoot(event,position);
 
-                String lootLayer = LayerObject.INSTANCE.getLayerName(event.getPlayer().getLocation());
-                if (!pData.getLayerData().getLootLayer().equals(lootLayer)) return;
-
-                // 例外が出たら（途中で変更があった）やり直し
-                while(true) {
-                    try {
-                        // 現在のエリアにあるlootの最大より多いID（その場合LootLocが取れない）があれば消す
-                        // IDではなくLocationで取り扱うようになったので、その可能性はないはず？
-                        //pData.getLayerData().getLootMap().entrySet().removeIf(i -> pData.getLayerData().isLootLocation(new BlockLoc(i.getKey())));
-
-                        for (Location lootLoc : pData.getLayerData().getLootMap().keySet()) {
-                            // 右クリックじゃないタイミング（テレポート直後）で送られたときは？ -> 距離判定を入れてごまかす
-                            if (event.getPlayer().getLocation().distance(location) > 5) {
-                                continue;
-                            }
-                            if (lootLoc.distance(location) == 0) {
-
-                                if(event.getPlayer().getGameMode() == GameMode.CREATIVE && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STONE_AXE) {
-                                    LootMain.unregisterChest(event.getPlayer(),location);
-                                    return;
-                                }
-                                if(event.getPlayer().getGameMode() == GameMode.CREATIVE && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.CHEST) {
-                                    event.setCancelled(true);
-                                    return;
-                                }
-
-                                //Bukkit.getLogger().info("loot_open -> position = " + position.getX() + "," + position.getY() + "," + position.getZ());
-                                //Bukkit.getLogger().info("loot_open -> material = " + data.getType());
-
-                                event.setCancelled(true);
-                                LootMain.openChest(event.getPlayer(), lootLoc);
-                                return;
-                            }
-                        }
-
-                        break;
-                    } catch (ConcurrentModificationException ignored) {}
-                }
                 // ロープ保護
                 // 例外が出たら（途中で変更があった）やり直し
                 while(true) {
@@ -102,9 +61,9 @@ public class BlockChangeListener extends PacketAdapter {
                     } catch (ConcurrentModificationException ignored) {}
                 }
             }
+
             // 光が非同期処理でロープを打ち消すのを防止
             else if (data.getType() == Material.LIGHT) {
-                Location location = position.toLocation(event.getPlayer().getWorld());
                 while(true) {
                     try {
                         if (RopeMain.isRopeLocation(event.getPlayer(), location)) {
@@ -116,7 +75,6 @@ public class BlockChangeListener extends PacketAdapter {
             }
             // ロープ以外の通過可能ブロックが送られたとき
             else if (data.getType() != Material.SCAFFOLDING && BlockUtil.isIgnoreBlockType(data.getType())) {
-                Location location = position.toLocation(event.getPlayer().getWorld());
                 // ロープ保護
                 while(true) {
                     try {
@@ -127,6 +85,51 @@ public class BlockChangeListener extends PacketAdapter {
                     } catch (ConcurrentModificationException ignored) {}
                 }
             }
+        }
+    }
+
+    private void checkLoot(PacketEvent event, BlockPosition position){
+        Location location = position.toLocation(event.getPlayer().getWorld());
+        PlayerData pData = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getPlayer().getUniqueId());
+        if (pData == null) return;
+
+        String lootLayer = LayerObject.INSTANCE.getLayerName(event.getPlayer().getLocation());
+        if (!pData.getLayerData().getLootLayer().equals(lootLayer)) return;
+
+        // 例外が出たら（途中で変更があった）やり直し
+        while(true) {
+            try {
+                // 現在のエリアにあるlootの最大より多いID（その場合LootLocが取れない）があれば消す
+                // IDではなくLocationで取り扱うようになったので、その可能性はないはず？
+                //pData.getLayerData().getLootMap().entrySet().removeIf(i -> pData.getLayerData().isLootLocation(new BlockLoc(i.getKey())));
+
+                for (Location lootLoc : pData.getLayerData().getLootMap().keySet()) {
+                    // 右クリックじゃないタイミング（テレポート直後）で送られたときは？ -> 距離判定を入れてごまかす
+                    if (event.getPlayer().getLocation().distance(location) > 5) {
+                        continue;
+                    }
+                    if (lootLoc.distance(location) == 0) {
+
+                        if(event.getPlayer().getGameMode() == GameMode.CREATIVE && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STONE_AXE) {
+                            LootMain.unregisterChest(event.getPlayer(),location);
+                            return;
+                        }
+                        if(event.getPlayer().getGameMode() == GameMode.CREATIVE && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.CHEST) {
+                            event.setCancelled(true);
+                            return;
+                        }
+
+                        //Bukkit.getLogger().info("loot_open -> position = " + position.getX() + "," + position.getY() + "," + position.getZ());
+                        //Bukkit.getLogger().info("loot_open -> material = " + data.getType());
+
+                        event.setCancelled(true);
+                        LootMain.openChest(event.getPlayer(), lootLoc);
+                        return;
+                    }
+                }
+
+                break;
+            } catch (ConcurrentModificationException ignored) {}
         }
     }
 }
