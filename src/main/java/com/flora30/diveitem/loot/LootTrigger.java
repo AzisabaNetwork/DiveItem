@@ -89,18 +89,18 @@ public class LootTrigger {
     }
 
     public static void onLayerChange(LayerChangeEvent event){
-        /* deprecated
         Player player = Bukkit.getPlayer(event.getUuid());
         if(player == null) return;
 
-        String groupName = LayerObject.INSTANCE.getLayerMap().get(event.getNextLayer()).getGroupName();
-        String lootLayer = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getUuid()).getLayerData().getLootLayer();
+        LayerData data = PlayerDataObject.INSTANCE.getPlayerDataMap().get(event.getUuid()).getLayerData();
 
-        // 同じ階層にあるものはgroupNameを同じにしてチェストの再生成しないようにできる
-        if (!groupName.equals(lootLayer)){
-            LootMain.executeRandomSpawn(player, player.getLocation());
+        String groupName = LayerObject.INSTANCE.getLayerMap().get(event.getNextLayer()).getGroupName();
+        String oldGroupName = LayerObject.INSTANCE.getLayerMap().get(data.getLayer()).getGroupName();
+
+        // 同じ階層にあるものはgroupNameを同じにしてチェストのリセットしないようにできる
+        if (!groupName.equals(oldGroupName)){
+            data.getLootMap().clear();
         }
-         */
     }
 
     public static void onTickSendChest(Player player){
