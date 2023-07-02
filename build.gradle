@@ -57,11 +57,21 @@ dependencies {
     //compileOnly fileTree('libs')
 }
 
+shadowJar {
+    doFirst {
+        delete archiveFile.get() // 前のファイルを削除する
+    }
+
+    archiveClassifier = null  // 'all' クラス分類子を削除
+}
+
 tasks {
     remap {
         version.set("1.17.1")
     }
 }
+
+remap.dependsOn shadowJar
 
 group = 'com.flora30'
 version = '1.0'
